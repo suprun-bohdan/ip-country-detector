@@ -3,16 +3,19 @@
 namespace wtg\IpCountryDetector\Services;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class IPCheckService
 {
     private IPCacheService $ipCacheService;
+    private IpApiService $ipApiService;
 
-    public function __construct(IPCacheService $ipCacheService)
+    public function __construct(IPCacheService $ipCacheService, IpApiService $ipApiService)
     {
         $this->ipCacheService = $ipCacheService;
+        $this->ipApiService = $ipApiService;
     }
 
     /**
@@ -26,6 +29,9 @@ class IPCheckService
         }
 
         $ipLong = ip2long($ipAddress);
+        if ($ipLong === false) {
+            return 'Invalid IP address';
+        }
 
         $country = $this->findCountryByIp($ipLong);
 
@@ -36,7 +42,7 @@ class IPCheckService
 
         $country = $this->fetchCountryFromApi($ipAddress);
 
-        if ($country !== 'Country not found') {
+        if ($country != 'Country not found') {
             $this->ipCacheService->setCountryToCache($ipAddress, $country);
         }
 
@@ -60,13 +66,6 @@ class IPCheckService
 
     private function fetchCountryFromApi(string $ipAddress): string
     {
-        $response = Http::get("https://ip-api.com/json/{$ipAddress}");
-
-        if ($response->ok()) {
-            $data = $response->json();
-            return $data['country'] ?? 'Country not found';
-        }
-
-        return 'Country not found';
+        return $this->ipApiService->getCountry($ipAddress);
     }
 }
