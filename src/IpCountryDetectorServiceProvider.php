@@ -12,7 +12,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/ipcountry.php', 'ipcountry'
+            __DIR__ . '/config/ipcountry.php', 'ipcountry'
         );
     }
 
@@ -20,7 +20,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
     {
 
         $this->publishes([
-            __DIR__ . '/../config/ipcountry.php' => config_path('ipcountry.php'),
+            __DIR__ . '/config/ipcountry.php' => config_path('ipcountry.php'),
         ], 'config');
 
         Route::middleware(IpAuthorization::class)
@@ -29,7 +29,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
                 Route::get(config('ipcountry.route'), 'IPCheckController@checkIP');
             });
 
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
