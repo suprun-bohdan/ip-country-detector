@@ -23,11 +23,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             __DIR__ . '/config/ipcountry.php' => config_path('ipcountry.php'),
         ], 'config');
 
-        Route::middleware(IpAuthorization::class)
-            ->namespace('wtg\IpCountryDetector\Http\Controllers')
-            ->group(function () {
-                Route::get(config('ipcountry.route'), 'IPCheckController@checkIP');
-            });
+        $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
 
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
