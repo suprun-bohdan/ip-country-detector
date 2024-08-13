@@ -16,9 +16,11 @@ class IpAuthorization
      */
     public function handle(Request $request, Closure $next): mixed
     {
+
+        $authEnabled = config('ipcountry.auth_enabled');
         $authKey = config('ipcountry.auth_key');
 
-        if ($request->header('Authorization') !== $authKey) {
+        if ($authEnabled && $request->header('Authorization') !== $authKey) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 

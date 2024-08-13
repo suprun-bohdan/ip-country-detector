@@ -2,6 +2,7 @@
 
 namespace wtg\IpCountryDetector\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use wtg\IpCountryDetector\Services\IPCheckService;
@@ -17,7 +18,7 @@ class IPCheckController extends Controller
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function checkIP(Request $request): JsonResponse
     {
