@@ -28,14 +28,14 @@ class IpAuthorization
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        $authEnabled = config('ipcountry.auth_enabled');
+        $authEnabled = (bool) config('ipcountry.auth_enabled');
         $authKey = config('ipcountry.auth_key');
 
-        if ($authEnabled) {
-            if ($request->header('X-IPCountry-Key') !== $authKey) {
-                return response()->json(['message' => 'Unauthorized'], 401);
-            }
+        if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
+        if ($authEnabled) {
             try {
                 $jwt = $this->extractTokenFromHeader($request);
                 $this->jwtService->parseToken($jwt);
@@ -59,5 +59,11 @@ class IpAuthorization
         }
 
         return str_replace('Bearer ', '', $authHeader);
+    }
+
+
+    protected function isUnauthorized(Request $request, string $authKey): bool
+    {
+        return $request->header('X-IPCountry-Key') !== $authKey;
     }
 }
