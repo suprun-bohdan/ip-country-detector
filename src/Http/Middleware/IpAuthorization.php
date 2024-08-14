@@ -32,7 +32,7 @@ class IpAuthorization
         $authKey = config('ipcountry.auth_key');
 
         if ($authEnabled) {
-            if ($request->header('Authorization') !== $authKey) {
+            if ($request->header('X-IPCountry-Key') !== $authKey) {
                 return response()->json(['message' => 'Unauthorized'], 401);
             }
 
