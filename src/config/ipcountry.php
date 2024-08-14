@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'auth_key' => env('IPCOUNTRY_AUTH_KEY', 'test'),
+    'auth_key' => env('IPCOUNTRY_AUTH_KEY', 'client_auth_key_123'),
     'auth_enabled' => env('IPCOUNTRY_AUTH_ENABLED', false),
     'route' => '/ip-country',
 ];
