@@ -7,14 +7,16 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use wtg\IpCountryDetector\Services\ErrorHandlerService;
+use wtg\IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
+use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 use wtg\IpCountryDetector\Services\JWTService;
 
 class IpAuthorization
 {
-    protected JWTService $jwtService;
-    protected ErrorHandlerService $errorHandler;
+    protected JWTServiceInterface $jwtService;
+    protected ErrorHandlerInterface $errorHandler;
 
-    public function __construct(JWTService $jwtService, ErrorHandlerService $errorHandler)
+    public function __construct(JWTServiceInterface $jwtService, ErrorHandlerInterface $errorHandler)
     {
         $this->jwtService = $jwtService;
         $this->errorHandler = $errorHandler;

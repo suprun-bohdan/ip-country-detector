@@ -8,8 +8,9 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 
-class JWTService
+class JWTService implements JWTServiceInterface
 {
     protected Configuration $config;
 
@@ -33,7 +34,7 @@ class JWTService
     /**
      * @throws Exception
      */
-    protected function validateToken(Plain $token): void
+    protected function validateToken(Plain|string $token): void
     {
         $signedWith = new SignedWith($this->config->signer(), $this->config->verificationKey());
         $validAt = new LooseValidAt(SystemClock::fromUTC());

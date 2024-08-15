@@ -8,6 +8,8 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use wtg\IpCountryDetector\Console\InstallIpCountryDetectorCommand;
 use wtg\IpCountryDetector\Http\Middleware\IpAuthorization;
+use wtg\IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
+use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 use wtg\IpCountryDetector\Services\JWTService;
 use wtg\IpCountryDetector\Services\ErrorHandlerService;
 
@@ -45,9 +47,8 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             return new ErrorHandlerService();
         });
 
-//        $this->app->singleton(JwtValidationService::class, function ($app) {
-//            return new JwtValidationService($app->make(Configuration::class));
-//        });
+        $this->app->bind(JWTServiceInterface::class, JWTService::class);
+        $this->app->bind(ErrorHandlerInterface::class, ErrorHandlerService::class);
     }
 
     public function boot(): void
