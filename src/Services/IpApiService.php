@@ -2,24 +2,13 @@
 
 namespace wtg\IpCountryDetector\Services;
 
-use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
-use JetBrains\PhpStorm\NoReturn;
+use wtg\IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
 
-class IpApiService
+class IpApiService implements IpCountryServiceInterface
 {
     public function getCountry(string $ipAddress): string
     {
-
-        /*
-        try {
-            $data = $this->fetchFromIpApi($ipAddress);
-        } catch (Exception $e) {
-            $data = $this->fetchFromCleanTalk($ipAddress);
-        }
-        */
-
         $data = $this->fetchFromCleanTalk($ipAddress);
 
         if (!isset($data['countryCode'])) {
