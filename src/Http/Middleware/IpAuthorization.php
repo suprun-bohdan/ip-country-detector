@@ -5,6 +5,7 @@ namespace wtg\IpCountryDetector\Http\Middleware;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use wtg\IpCountryDetector\Services\ErrorHandlerService;
 use wtg\IpCountryDetector\Services\JWTService;
 
@@ -13,9 +14,12 @@ class IpAuthorization
     protected JWTService $jwtService;
     protected ErrorHandlerService $errorHandler;
 
-    public function __construct(JWTService $jwtService, ErrorHandlerService $errorHandler)
+    public function __construct(ErrorHandlerService $errorHandler)
     {
-        $this->jwtService = $jwtService;
+        $publicKeyPath = config('jwt.keys.public');
+        $privateKeyPath = config('jwt.keys.private');
+
+        $this->jwtService = new JWTService($publicKeyPath, $privateKeyPath);
         $this->errorHandler = $errorHandler;
     }
 
@@ -32,7 +36,7 @@ class IpAuthorization
         $authKey = config('ipcountry.auth_key');
 
         if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return new JsonResponse(['message' => 'Unauthorized'], 401);
         }
 
         if ($authEnabled) {
@@ -48,6 +52,10 @@ class IpAuthorization
     }
 
     /**
+     * Extract the JWT token from the Authorization header.
+     *
+     * @param Request $request
+     * @return array|string|null
      * @throws Exception
      */
     protected function extractTokenFromHeader(Request $request): array|string|null
@@ -61,7 +69,13 @@ class IpAuthorization
         return str_replace('Bearer ', '', $authHeader);
     }
 
-
+    /**
+     * Check if the request is unauthorized based on the custom IP key.
+     *
+     * @param Request $request
+     * @param string $authKey
+     * @return bool
+     */
     protected function isUnauthorized(Request $request, string $authKey): bool
     {
         return $request->header('X-IPCountry-Key') !== $authKey;

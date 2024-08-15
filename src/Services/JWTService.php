@@ -3,70 +3,54 @@
 namespace wtg\IpCountryDetector\Services;
 
 use Exception;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Lcobucci\Clock\SystemClock;
 
 class JWTService
 {
-    protected string|false $publicKey;
+    protected Configuration $config;
 
-    public function __construct($publicKeyPath)
+    public function __construct(string $publicKeyPath, string $privateKeyPath = null)
     {
-        $this->publicKey = file_get_contents($publicKeyPath);
+        $publicKey = InMemory::file($publicKeyPath);
+        $privateKey = $privateKeyPath ? InMemory::file($privateKeyPath) : InMemory::plainText('');
+
+        $this->config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            $privateKey,
+            $publicKey
+        );
     }
 
     /**
      * @throws Exception
      */
-    public function parseToken($jwt)
+    public function parseToken($jwt): array
     {
-        $tokenParts = explode('.', $jwt);
+        $token = $this->config->parser()->parse($jwt);
 
-        if (count($tokenParts) !== 3) {
-            throw new Exception('Invalid token structure');
-        }
+        $this->validateToken($token);
 
-        list($header, $payload, $signature) = $tokenParts;
-
-        $header = json_decode(base64_decode($header), true);
-        $payload = json_decode(base64_decode($payload), true);
-
-        $this->validateTokenTimestamps($payload);
-
-        if ($this->verifySignature($header, $payload, $signature)) {
-            return $payload;
-        } else {
-            throw new Exception('Invalid token signature');
-        }
-    }
-
-    protected function verifySignature($header, $payload, $signature): bool
-    {
-        $signatureProvided = base64_decode(str_replace(['-', '_'], ['+', '/'], $signature));
-
-        $data = base64_encode(json_encode($header)) . '.' . base64_encode(json_encode($payload));
-
-        return openssl_verify($data, $signatureProvided, $this->publicKey, OPENSSL_ALGO_SHA256) === 1;
+        return $token->claims()->all();
     }
 
     /**
-     * Check exp
-     *
-     * @param array $payload
      * @throws Exception
      */
-    protected function validateTokenTimestamps(array $payload): void
+    protected function validateToken(Plain $token): void
     {
-        $currentTime = time();
+        $signedWith = new SignedWith($this->config->signer(), $this->config->verificationKey());
+        $validAt = new LooseValidAt(SystemClock::fromUTC());
 
-        if (isset($payload['exp']) && $currentTime >= $payload['exp']) {
-            throw new Exception('Token has expired');
-        }
+        $constraints = [$signedWith, $validAt];
 
-        if (isset($payload['nbf']) && $currentTime < $payload['nbf']) {
-            throw new Exception('Token is not valid yet');
-        }
-
-        if (isset($payload['iat']) && $currentTime < $payload['iat']) {
-            throw new Exception('Token issued in the future');
+        if (!$this->config->validator()->validate($token, ...$constraints)) {
+            throw new Exception('Token validation failed');
         }
     }
 }
