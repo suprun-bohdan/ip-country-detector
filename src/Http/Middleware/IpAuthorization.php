@@ -14,12 +14,9 @@ class IpAuthorization
     protected JWTService $jwtService;
     protected ErrorHandlerService $errorHandler;
 
-    public function __construct(ErrorHandlerService $errorHandler)
+    public function __construct(JWTService $jwtService, ErrorHandlerService $errorHandler)
     {
-        $publicKeyPath = config('jwt.keys.public');
-        $privateKeyPath = config('jwt.keys.private');
-
-        $this->jwtService = new JWTService($publicKeyPath, $privateKeyPath);
+        $this->jwtService = $jwtService;
         $this->errorHandler = $errorHandler;
     }
 

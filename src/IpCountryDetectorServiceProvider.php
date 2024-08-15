@@ -3,6 +3,9 @@
 namespace wtg\IpCountryDetector;
 
 use Illuminate\Support\ServiceProvider;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use wtg\IpCountryDetector\Console\InstallIpCountryDetectorCommand;
 use wtg\IpCountryDetector\Http\Middleware\IpAuthorization;
 use wtg\IpCountryDetector\Services\JWTService;
@@ -20,14 +23,31 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             __DIR__ . '/config/jwt.php', 'jwt'
         );
 
-        // Реєстрація сервісів в контейнері
+        $this->app->singleton(Configuration::class, function ($app) {
+            $publicKeyPath = config('jwt.keys.public');
+            $privateKeyPath = config('jwt.keys.private');
+
+            $publicKey = InMemory::file($publicKeyPath);
+            $privateKey = InMemory::file($privateKeyPath);
+
+            return Configuration::forAsymmetricSigner(
+                new Sha256(),
+                $privateKey,
+                $publicKey
+            );
+        });
+
         $this->app->singleton(JWTService::class, function ($app) {
-            return new JWTService(storage_path('app/keys/public.pem'));
+            return new JWTService($app->make(Configuration::class));
         });
 
         $this->app->singleton(ErrorHandlerService::class, function ($app) {
             return new ErrorHandlerService();
         });
+
+//        $this->app->singleton(JwtValidationService::class, function ($app) {
+//            return new JwtValidationService($app->make(Configuration::class));
+//        });
     }
 
     public function boot(): void

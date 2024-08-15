@@ -3,28 +3,19 @@
 namespace wtg\IpCountryDetector\Services;
 
 use Exception;
+use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
-use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 
 class JWTService
 {
     protected Configuration $config;
 
-    public function __construct(string $publicKeyPath, string $privateKeyPath = null)
+    public function __construct(Configuration $config)
     {
-        $publicKey = InMemory::file($publicKeyPath);
-        $privateKey = $privateKeyPath ? InMemory::file($privateKeyPath) : InMemory::plainText('');
-
-        $this->config = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            $privateKey,
-            $publicKey
-        );
+        $this->config = $config;
     }
 
     /**
