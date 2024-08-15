@@ -3,9 +3,7 @@
 namespace wtg\IpCountryDetector\Services;
 
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 
 class IPCheckService
 {

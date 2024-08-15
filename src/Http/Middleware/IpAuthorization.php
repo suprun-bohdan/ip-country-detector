@@ -6,10 +6,8 @@ use Closure;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use wtg\IpCountryDetector\Services\ErrorHandlerService;
 use wtg\IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
 use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
-use wtg\IpCountryDetector\Services\JWTService;
 
 class IpAuthorization
 {
