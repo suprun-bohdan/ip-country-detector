@@ -58,9 +58,6 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/ipcountry.php' => config_path('ipcountry.php'),
-        ], 'config');
-
-        $this->publishes([
             __DIR__ . '/config/jwt.php' => config_path('jwt.php'),
         ], 'config');
 
