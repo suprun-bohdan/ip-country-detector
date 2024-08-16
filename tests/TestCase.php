@@ -1,9 +1,9 @@
 <?php
 
-namespace wtg\IpCountryDetector\Tests;
+namespace IpCountryDetector\Tests;
 
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use wtg\IpCountryDetector\IpCountryDetectorServiceProvider;
+use IpCountryDetector\IpCountryDetectorServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {

@@ -1,25 +1,29 @@
 <?php
 
-namespace wtg\IpCountryDetector\Services;
+namespace IpCountryDetector\Services;
 
-use Illuminate\Support\Facades\Cache;
-
+use IpCountryDetector\Services\Drivers\RedisCacheService;
 class IPCacheService
 {
-    private const CACHE_TTL = 86400; //24h
+    private RedisCacheService $cacheService;
+
+    public function __construct(RedisCacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
 
     public function getCountryFromCache(string $ipAddress): ?string
     {
-        return Cache::get($this->getCacheKey($ipAddress));
+        return $this->cacheService->get($this->getCacheKey($ipAddress));
     }
 
     public function setCountryToCache(string $ipAddress, string $country): void
     {
-        Cache::put($this->getCacheKey($ipAddress), $country, self::CACHE_TTL);
+        $this->cacheService->set($this->getCacheKey($ipAddress), $country);
     }
 
     private function getCacheKey(string $ipAddress): string
     {
-        return config('ipcountry.redis_prefix') . '::' . $ipAddress;
+        return config('ipcountry.redis.prefix') . '::' . $ipAddress;
     }
 }

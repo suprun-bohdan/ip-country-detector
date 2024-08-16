@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Services\Interfaces;
+namespace IpCountryDetector\Services\Interfaces;
 
 use Illuminate\Http\JsonResponse;
 

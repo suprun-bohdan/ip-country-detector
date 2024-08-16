@@ -1,13 +1,13 @@
 <?php
 
-namespace wtg\IpCountryDetector\Http\Middleware;
+namespace IpCountryDetector\Http\Middleware;
 
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use wtg\IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
-use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
+use IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
+use IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 
 class IpAuthorization
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace wtg\IpCountryDetector\Http\Controllers;
+namespace IpCountryDetector\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use wtg\IpCountryDetector\Services\IPCheckService;
+use IpCountryDetector\Services\IPCheckService;
 use Illuminate\Http\JsonResponse;
 
 class IPCheckController extends Controller
@@ -20,11 +20,11 @@ class IPCheckController extends Controller
     /**
      * @throws Exception
      */
-    public function checkIP(Request $request): JsonResponse
+    public function checkIP(Request $request): array
     {
         $ipAddress = $request->input('ip');
         $country = $this->ipCheckService->ipToCountry($ipAddress);
 
-        return response()->json(['ip' => $ipAddress, 'country' => $country]);
+        return ['ip' => $ipAddress, 'country' => $country];
     }
 }

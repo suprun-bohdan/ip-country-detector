@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Services;
+namespace IpCountryDetector\Services;
 
 use Exception;
 use Illuminate\Support\Facades\DB;

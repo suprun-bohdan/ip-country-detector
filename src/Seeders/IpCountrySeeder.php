@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Seeders;
+namespace IpCountryDetector\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

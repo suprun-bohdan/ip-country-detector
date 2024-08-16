@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Models;
+namespace IpCountryDetector\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

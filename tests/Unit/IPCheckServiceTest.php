@@ -1,10 +1,10 @@
 <?php
 
-namespace wtg\IpCountryDetector\Tests\Unit;
+namespace IpCountryDetector\Tests\Unit;
 
-use wtg\IpCountryDetector\Services\IPCacheService;
-use wtg\IpCountryDetector\Services\IPCheckService;
-use wtg\IpCountryDetector\Tests\TestCase;
+use IpCountryDetector\Services\IPCacheService;
+use IpCountryDetector\Services\IPCheckService;
+use IpCountryDetector\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 
