@@ -14,6 +14,7 @@ use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 use wtg\IpCountryDetector\Services\IpApiService;
 use wtg\IpCountryDetector\Services\JWTService;
 use wtg\IpCountryDetector\Services\ErrorHandlerService;
+use wtg\IpCountryDetector\Services\RedisCacheService;
 
 class IpCountryDetectorServiceProvider extends ServiceProvider
 {
@@ -23,13 +24,13 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             __DIR__ . '/config/ipcountry.php', 'ipcountry'
         );
 
-        $this->mergeConfigFrom(
-            __DIR__ . '/config/jwt.php', 'jwt'
-        );
+        $this->app->singleton(RedisCacheService::class, function ($app) {
+            return new RedisCacheService();
+        });
 
         $this->app->singleton(Configuration::class, function ($app) {
-            $publicKeyPath = config('jwt.keys.public');
-            $privateKeyPath = config('jwt.keys.private');
+            $publicKeyPath = config('ipcountry.keys.public');
+            $privateKeyPath = config('ipcountry.keys.private');
 
             $publicKey = InMemory::file($publicKeyPath);
             $privateKey = InMemory::file($privateKeyPath);
@@ -58,7 +59,6 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/ipcountry.php' => config_path('ipcountry.php'),
-            __DIR__ . '/config/jwt.php' => config_path('jwt.php'),
         ], 'config');
 
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');

@@ -32,8 +32,10 @@ class IpAuthorization
         $authEnabled = (bool) config('ipcountry.auth_enabled');
         $authKey = config('ipcountry.auth_key');
 
-        if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
-            return new JsonResponse(['message' => 'Unauthorized'], 401);
+        if ($request->is('ip-country')) {
+            if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
+                return new JsonResponse(['message' => 'Unauthorized'], 401);
+            }
         }
 
         if ($authEnabled) {
