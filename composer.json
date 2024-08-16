@@ -23,6 +23,7 @@
         "php": "^8.0",
         "illuminate/support": "^8.0|^9.0|^10.0",
         "tymon/jwt-auth": "*",
+        "predis/predis": "^2.0",
       "ext-openssl": "*",
         "lcobucci/jwt": "^4.3"
     },

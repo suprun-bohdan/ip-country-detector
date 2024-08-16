@@ -7,4 +7,5 @@ return [
     'auth_enabled' => env('IPCOUNTRY_AUTH_ENABLED', true),
     'route' => '/ip-country',
     'middleware' => [IpAuthorization::class],
+    'redis_prefix' => env('IPCOUNTRY_REDIS_PREFIX', 'ip_country'),
 ];

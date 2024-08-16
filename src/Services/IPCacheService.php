@@ -20,6 +20,6 @@ class IPCacheService
 
     private function getCacheKey(string $ipAddress): string
     {
-        return 'ip_country_' . $ipAddress;
+        return config('ipcountry.redis_prefix') . '::' . $ipAddress;
     }
 }

@@ -1,10 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use wtg\IpCountryDetector\Http\Middleware\IpAuthorization;
+use wtg\IpCountryDetector\Http\Controllers\IPCheckController;
 
-Route::middleware(config('ip-country-detector.middleware'))
-    ->namespace('wtg\IpCountryDetector\Http\Controllers')
+Route::middleware(config('ipcountry.middleware'))
     ->group(function () {
-        Route::get(config('ipcountry.route'), 'IPCheckController@checkIP');
+        Route::get(config('ipcountry.route'), [IPCheckController::class, 'checkIP']);
     });
