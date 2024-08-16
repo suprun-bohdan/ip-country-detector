@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Services;
+namespace IpCountryDetector\Services;
 
 use Exception;
 use Lcobucci\Clock\SystemClock;
@@ -8,7 +8,7 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
+use IpCountryDetector\Services\Interfaces\JWTServiceInterface;
 
 class JWTService implements JWTServiceInterface
 {

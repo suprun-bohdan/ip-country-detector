@@ -1,11 +1,11 @@
 <?php
 
-namespace wtg\IpCountryDetector\Http\Controllers;
+namespace IpCountryDetector\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use wtg\IpCountryDetector\Services\IPCheckService;
+use IpCountryDetector\Services\IPCheckService;
 use Illuminate\Http\JsonResponse;
 
 class IPCheckController extends Controller

@@ -1,20 +1,20 @@
 <?php
 
-namespace wtg\IpCountryDetector;
+namespace IpCountryDetector;
 
 use Illuminate\Support\ServiceProvider;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use wtg\IpCountryDetector\Console\InstallIpCountryDetectorCommand;
-use wtg\IpCountryDetector\Http\Middleware\IpAuthorization;
-use wtg\IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
-use wtg\IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
-use wtg\IpCountryDetector\Services\Interfaces\JWTServiceInterface;
-use wtg\IpCountryDetector\Services\IpApiService;
-use wtg\IpCountryDetector\Services\JWTService;
-use wtg\IpCountryDetector\Services\ErrorHandlerService;
-use wtg\IpCountryDetector\Services\RedisCacheService;
+use IpCountryDetector\Console\InstallIpCountryDetectorCommand;
+use IpCountryDetector\Http\Middleware\IpAuthorization;
+use IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
+use IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
+use IpCountryDetector\Services\Interfaces\JWTServiceInterface;
+use IpCountryDetector\Services\IpApiService;
+use IpCountryDetector\Services\JWTService;
+use IpCountryDetector\Services\ErrorHandlerService;
+use IpCountryDetector\Services\RedisCacheService;
 
 class IpCountryDetectorServiceProvider extends ServiceProvider
 {

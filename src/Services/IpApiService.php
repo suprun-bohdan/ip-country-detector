@@ -1,9 +1,9 @@
 <?php
 
-namespace wtg\IpCountryDetector\Services;
+namespace IpCountryDetector\Services;
 
 use Illuminate\Support\Facades\Http;
-use wtg\IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
+use IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
 
 class IpApiService implements IpCountryServiceInterface
 {

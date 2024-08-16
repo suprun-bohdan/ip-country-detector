@@ -1,6 +1,6 @@
 <?php
 
-use wtg\IpCountryDetector\Http\Middleware\IpAuthorization;
+use IpCountryDetector\Http\Middleware\IpAuthorization;
 
 return [
     'auth_key' => env('IPCOUNTRY_AUTH_KEY', 'client_auth_key_123'),

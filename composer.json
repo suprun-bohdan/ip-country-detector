@@ -11,12 +11,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "wtg\\IpCountryDetector\\": "src/"
+            "IpCountryDetector\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "wtg\\IpCountryDetector\\Tests\\": "tests/"
+            "IpCountryDetector\\Tests\\": "tests/"
         }
     },
     "require": {
@@ -30,7 +30,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "wtg\\IpCountryDetector\\IpCountryDetectorServiceProvider"
+                "IpCountryDetector\\IpCountryDetectorServiceProvider"
             ]
         }
     },

@@ -1,10 +1,10 @@
 <?php
 
-namespace wtg\IpCountryDetector\Console;
+namespace IpCountryDetector\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use wtg\IpCountryDetector\Jobs\UpdateIpCsvFile;
+use IpCountryDetector\Jobs\UpdateIpCsvFile;
 
 class InstallIpCountryDetectorCommand extends Command
 {
@@ -22,7 +22,7 @@ class InstallIpCountryDetectorCommand extends Command
         $this->call('migrate');
 
         Artisan::call('db:seed', [
-            '--class' => 'wtg\IpCountryDetector\Seeders\IpCountrySeeder',
+            '--class' => 'IpCountryDetector\Seeders\IpCountrySeeder',
         ]);
         $this->info('Database seeded successfully.');
 

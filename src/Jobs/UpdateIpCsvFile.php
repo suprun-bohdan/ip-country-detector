@@ -1,6 +1,6 @@
 <?php
 
-namespace wtg\IpCountryDetector\Jobs;
+namespace IpCountryDetector\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

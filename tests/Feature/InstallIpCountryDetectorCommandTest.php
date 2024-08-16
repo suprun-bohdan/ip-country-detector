@@ -1,8 +1,8 @@
 <?php
 
-namespace wtg\IpCountryDetector\Tests\Feature;
+namespace IpCountryDetector\Tests\Feature;
 
-use wtg\IpCountryDetector\Tests\TestCase;
+use IpCountryDetector\Tests\TestCase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
