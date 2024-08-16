@@ -61,7 +61,6 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             __DIR__ . '/config/jwt.php' => config_path('jwt.php'),
         ], 'config');
 
-        $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         if ($this->app->runningInConsole()) {
@@ -70,6 +69,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             ]);
         }
 
+        $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
         $this->app['router']->aliasMiddleware('ip.authorization', IpAuthorization::class);
     }
 }
