@@ -29,13 +29,11 @@ class IpAuthorization
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        $authEnabled = (bool) config('ipcountry.auth_enabled');
+        $authEnabled = (bool)config('ipcountry.auth_enabled');
         $authKey = config('ipcountry.auth_key');
 
-        if ($request->is('ip-country')) {
-            if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
-                return new JsonResponse(['message' => 'Unauthorized'], 401);
-            }
+        if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
+            return new JsonResponse(['message' => 'Unauthorized'], 401);
         }
 
         if ($authEnabled) {
