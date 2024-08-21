@@ -5,5 +5,5 @@ use IpCountryDetector\Http\Controllers\IPCheckController;
 
 Route::middleware(config('ipcountry.middleware'))
     ->group(function () {
-        Route::get(config('ipcountry.route'), [IPCheckController::class, 'checkIP']);
+        Route::match(['get', 'post'], config('ipcountry.route'), [IPCheckController::class, 'checkIP']);
     });
