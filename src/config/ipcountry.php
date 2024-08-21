@@ -10,8 +10,8 @@ return [
     'redis' => [
         'host' => env('IPCOUNTRY_REDIS_HOST', '127.0.0.1'),
         'port' => env('IPCOUNTRY_REDIS_PORT', 6379),
-        'database' => env('IPCOUNTRY_REDIS_DATABASE', 0),
-        'password' => env('IPCOUNTRY_REDIS_PASSWORD', 0),
+        'database' => env('IPCOUNTRY_REDIS_DATABASE', ''),
+        'password' => env('IPCOUNTRY_REDIS_PASSWORD', ''),
         'prefix' => env('IPCOUNTRY_REDIS_PREFIX', 'ip_country'),
     ],
     'secret' => env('JWT_SECRET', 'jwtsecret'),
