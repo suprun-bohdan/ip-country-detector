@@ -49,9 +49,8 @@ class IPCheckService
 
     public function ipToCountrySimple($ipAddress)
     {
-        $ipLong = ip2long($ipAddress);
-        if ($ipLong === false) {
-            return 'Invalid IP address';
+        if (empty($ipAddress) || ($ipLong = ip2long($ipAddress)) === false) {
+            return;
         }
 
         $country = $this->findCountryByIp($ipLong);
@@ -62,7 +61,7 @@ class IPCheckService
 
         $country = $this->fetchCountryFromApi($ipAddress);
 
-        return $country != 'Country not found' ? $country : 'Country not found';
+        return $country != 'Country not found' ? $country : null;
     }
 
     private function findCountryByIp(int $ipLong): string
