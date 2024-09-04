@@ -47,7 +47,7 @@ class IPCheckService
         return $country;
     }
 
-    public function ipToCountrySimple(string $ipAddress): string
+    public function ipToCountrySimple(string $ipAddress)
     {
         $ipLong = ip2long($ipAddress);
         if ($ipLong === false) {
