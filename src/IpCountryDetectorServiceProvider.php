@@ -39,10 +39,6 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton('ip-detector', function ($app) {
-            return new IPCheckController($app->make(IPCheckService::class));
-        });
-
         $this->app->singleton(JWTService::class, function ($app) {
             return new JWTService($app->make(Configuration::class));
         });
@@ -54,6 +50,10 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
         $this->app->bind(JWTServiceInterface::class, JWTService::class);
         $this->app->bind(ErrorHandlerInterface::class, ErrorHandlerService::class);
         $this->app->bind(IpCountryServiceInterface::class, IpApiService::class);
+
+        $this->app->singleton('ip-detector', function ($app) {
+            return new IPCheckController($app->make(IPCheckService::class));
+        });
     }
 
     public function boot(): void
