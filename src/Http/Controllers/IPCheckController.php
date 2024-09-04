@@ -31,8 +31,14 @@ class IPCheckController extends Controller
     /**
      * @throws Exception
      */
-    public function checkIPFromEntry($ipAddress): string
+    public function checkIPFromEntry($ipAddress): ?string
     {
-        return $this->ipCheckService->ipToCountrySimple($ipAddress);
+        $country = $this->ipCheckService->ipToCountrySimple($ipAddress);
+
+        if (empty($country)) {
+            return null;
+        }
+
+        return $country;
     }
 }
