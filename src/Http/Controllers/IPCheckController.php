@@ -33,6 +33,9 @@ class IPCheckController extends Controller
      */
     public function checkIPFromEntry($ipAddress): ?string
     {
+        if ($ipAddress == '127.0.0.1' || $ipAddress == '::1') {
+            return 'localhost';
+        }
         $country = $this->ipCheckService->ipToCountrySimple($ipAddress);
 
         if (empty($country)) {
