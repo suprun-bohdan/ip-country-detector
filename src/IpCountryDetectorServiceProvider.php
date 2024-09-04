@@ -3,6 +3,8 @@
 namespace IpCountryDetector;
 
 use Illuminate\Support\ServiceProvider;
+use IpCountryDetector\Http\Controllers\IPCheckController;
+use IpCountryDetector\Services\IPCheckService;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -35,6 +37,10 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
                 $privateKey,
                 $publicKey
             );
+        });
+
+        $this->app->singleton('ip-detector', function ($app) {
+            return new IPCheckController($app->make(IpCheckService::class));
         });
 
         $this->app->singleton(JWTService::class, function ($app) {
