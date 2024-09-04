@@ -33,7 +33,7 @@ class IPCheckController extends Controller
      */
     public function checkIPFromEntry($ipAddress): array
     {
-        $country = $this->ipCheckService->ipToCountry($ipAddress);
+        $country = $this->ipCheckService->ipToCountrySimple($ipAddress);
 
         return ['country' => $country];
     }

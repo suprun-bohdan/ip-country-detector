@@ -47,6 +47,24 @@ class IPCheckService
         return $country;
     }
 
+    public function ipToCountrySimple(string $ipAddress): string
+    {
+        $ipLong = ip2long($ipAddress);
+        if ($ipLong === false) {
+            return 'Invalid IP address';
+        }
+
+        $country = $this->findCountryByIp($ipLong);
+
+        if ($country !== "IP Address not found in the range.") {
+            return $country;
+        }
+
+        $country = $this->fetchCountryFromApi($ipAddress);
+
+        return $country != 'Country not found' ? $country : 'Country not found';
+    }
+
     private function findCountryByIp(int $ipLong): string
     {
         $result = DB::table('ip_country')
