@@ -40,7 +40,7 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('ip-detector', function ($app) {
-            return new IPCheckController($app->make(IpCheckService::class));
+            return new IPCheckController($app->make(IPCheckService::class));
         });
 
         $this->app->singleton(JWTService::class, function ($app) {
