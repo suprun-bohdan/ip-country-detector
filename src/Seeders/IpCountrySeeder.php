@@ -69,9 +69,6 @@ class IpCountrySeeder extends Seeder
     private function logMessage(string $message, string $level): void
     {
         Log::{$level}($message);
-        if (env('APP_DEBUG') === true || env('LOG_LEVEL') === 'debug') {
-            echo $message . "\n";
-        }
     }
 
     private function insertOrUpdate(array $records): void
