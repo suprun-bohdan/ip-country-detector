@@ -19,7 +19,7 @@ class IpCountrySeeder extends Seeder
      */
     public function run(): void
     {
-        $csvFilePath = storage_path('app/'.self::TEMP_CSV_FILE);
+        $csvFilePath = storage_path(self::TEMP_CSV_FILE);
         $this->logMessage("CSV file path: $csvFilePath", 'info');
 
         if (!$handle = fopen($csvFilePath, 'r')) {
