@@ -10,12 +10,7 @@ use Throwable;
 class IpCountrySeeder extends Seeder
 {
     private const TEMP_CSV_FILE = 'asn-country-ipv4.csv';
-    protected string $tableName;
-
-    public function __construct()
-    {
-        $this->tableName = $this->command->option('table') ?? 'default_table_name';
-    }
+    protected string $tableName = 'ip_country';
 
     /**
      * Run the database seeds.
@@ -25,8 +20,6 @@ class IpCountrySeeder extends Seeder
      */
     public function run(): void
     {
-        $this->tableName = $this->command->option('table') ?? 'default_table_name';
-
         $csvFilePath = storage_path(self::TEMP_CSV_FILE);
         $this->logMessage("CSV file path: $csvFilePath", 'info');
 
