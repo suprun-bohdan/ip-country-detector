@@ -56,7 +56,7 @@ class IpCountrySeeder extends Seeder
                         'country' => $country,
                     ];
 
-                    DB::table($this->tableName)->insert($record);
+                    DB::table($this->tableName)->updateOrInsert($record);
 
                     $this->logMessage('info', "[№ $rowCount / {$totalRows}] - [{$firstIp} - {$lastIp}] - [{$country}]");
 
