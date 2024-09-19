@@ -21,11 +21,29 @@ class IPCheckController extends Controller
      */
     public function checkIP(Request $request): array
     {
-        $ipAddress = $request->input('ip');
-        $country = $this->ipCheckService->ipToCountry($ipAddress);
+        $ipAddress = $request->input('ip')
+            ?? $request->header('CF-Connecting-IP')
+            ?? $request->ip();
 
-        return ['ip' => $ipAddress, 'country' => $country];
+        $timeZone = $request->input('timezone', 'UTC');
+
+        try {
+            $country = $ipAddress
+                ? $this->ipCheckService->ipToCountry($ipAddress)
+                : throw new \InvalidArgumentException('IP address is required');
+        } catch (\Exception $e) {
+            Log::warning("IP to Country failed, switching to timezone: {$e->getMessage()}");
+            $country = $this->ipCheckService->timeZoneToCountry($timeZone);
+        }
+
+        if (empty($ipAddress) || $ipAddress === '127.0.0.1') {
+            return ['timezone' => $timeZone, 'country' => $country];
+        }
+
+        return ['ip' => $ipAddress ?? 'Unknown IP', 'country' => $country];
     }
+
+
 
     /**
      * @throws Exception
