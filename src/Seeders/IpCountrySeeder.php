@@ -77,6 +77,6 @@ class IpCountrySeeder extends Seeder
         Log::{$level}($message);
 
         $output = new ConsoleOutput();
-        $output->writeln("<bg=white;fg=black>{$message}</bg=white>");
+        $output->writeln("<info>{$message}</info>");
     }
 }
