@@ -27,35 +27,25 @@ class IpCountrySeeder extends Seeder
             return;
         }
 
-        $records = [];
-
         try {
-            DB::transaction(function () use ($handle, &$records) {
-                $chunkSize = 1000;
-                $chunkCount = 1;
+            DB::transaction(function () use ($handle) {
+                $rowCount = 1;
 
                 while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                     [$firstIp, $lastIp, $country] = $data;
 
-                    $records[] = [
+                    $record = [
                         'first_ip' => ip2long($firstIp),
                         'last_ip' => ip2long($lastIp),
                         'country' => $country,
                     ];
 
-                    if (count($records) === $chunkSize) {
-                        $this->logMessage("№ {$chunkCount}: Inserting chunk of $chunkSize records", 'info');
-                        $this->insertOrUpdate($records);
-                        $this->logMessage("Chunk inserted successfully.", 'info');
-                        $chunkCount++;
-                        $records = [];
-                    }
-                }
+                    $this->logMessage("Row № {$rowCount}: Processing record - First IP: {$firstIp}, Last IP: {$lastIp}, Country: {$country}", 'info');
 
-                if ($records) {
-                    $this->logMessage("№ {$chunkCount}: Inserting last chunk of records", 'info');
-                    $this->insertOrUpdate($records);
-                    $this->logMessage("Last chunk inserted successfully.", 'info');
+                    $this->insertOrUpdate([$record]);
+
+                    $this->logMessage("Row № {$rowCount}: Record inserted successfully.", 'info');
+                    $rowCount++;
                 }
 
                 fclose($handle);
@@ -64,6 +54,7 @@ class IpCountrySeeder extends Seeder
         } catch (Throwable $e) {
             $this->logMessage("Failed to process CSV file: {$e->getMessage()}", 'error');
         }
+
     }
 
     private function logMessage(string $message, string $level): void
