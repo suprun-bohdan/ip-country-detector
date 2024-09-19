@@ -57,7 +57,7 @@ class IpCountrySeeder extends Seeder
 
                     DB::table($this->tableName)->insert($record);
 
-                    echo "[{$rowCount}/{$totalRows}] - {$firstIp}\n";
+                    $this->logMessage('info', "{$rowCount}/{$totalRows}] - {$firstIp}] - {$lastIp} - {$country}");
 
                     $rowCount++;
                 }
@@ -70,7 +70,7 @@ class IpCountrySeeder extends Seeder
         }
     }
 
-    private function logMessage(string $message, string $level): void
+    private function logMessage(string $level, string $message): void
     {
         Log::{$level}($message);
     }
