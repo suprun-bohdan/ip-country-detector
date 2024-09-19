@@ -5,6 +5,7 @@ namespace IpCountryDetector\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use IpCountryDetector\Services\CsvFilePathService;
 use Throwable;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -13,15 +14,22 @@ class IpCountrySeeder extends Seeder
     private const TEMP_CSV_FILE = 'asn-country-ipv4.csv';
     protected string $tableName = 'ip_country';
 
+    protected CsvFilePathService $csvFilePathService;
+
     /**
      * Run the database seeds.
      *
      * @return void
      * @throws Throwable
      */
+
+    public function __construct(CsvFilePathService $csvFilePathService)
+    {
+        $this->csvFilePathService = $csvFilePathService;
+    }
     public function run(): void
     {
-        $csvFilePath = storage_path('app/' . self::TEMP_CSV_FILE);
+        $csvFilePath = $this->csvFilePathService->getCsvFilePath();
         $this->logMessage('info', "CSV file path: $csvFilePath");
 
         if (!$handle = fopen($csvFilePath, 'r')) {
