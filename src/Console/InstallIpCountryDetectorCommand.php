@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-
 class InstallIpCountryDetectorCommand extends Command
 {
     protected $signature = 'ip-country-detector:install';
@@ -16,17 +15,20 @@ class InstallIpCountryDetectorCommand extends Command
 
     private const CSV_URL = 'https://cdn.jsdelivr.net/npm/@ip-location-db/asn-country/asn-country-ipv4.csv';
 
-    private const STORAGE_PATH = 'asn-country-ipv4.csv';
+    private string $filename = 'asn-country-ipv4.csv';
+
     public function handle(): int
     {
+        $storageFilePath = storage_path($this->filename);
+
         $this->info('Starting installation of IP Country Detector package...');
 
-        if (!Storage::exists(storage_path(self::STORAGE_PATH))) {
+        if (!file_exists($storageFilePath)) {
             $this->info('CSV file not found. Downloading...');
             $response = Http::get(self::CSV_URL);
 
             if ($response->ok()) {
-                Storage::put(storage_path(self::STORAGE_PATH), $response->body());
+                Storage::put($this->filename, $response->body());
                 $this->info('CSV file downloaded successfully.');
             } else {
                 $this->error('Failed to download CSV file.');
