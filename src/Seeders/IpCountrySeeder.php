@@ -56,10 +56,10 @@ class IpCountrySeeder extends Seeder
                 }
 
                 fclose($handle);
-                $this->logMessage("CSV processing completed and file closed.", 'info');
+                $this->logMessage('info', "CSV processing completed and file closed.");
             });
         } catch (Throwable $e) {
-            $this->logMessage("Failed to process CSV file: {$e->getMessage()}", 'error');
+            $this->logMessage('error', "Failed to process CSV file: {$e->getMessage()}");
         }
     }
 
