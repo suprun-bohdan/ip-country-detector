@@ -33,7 +33,7 @@ class InstallIpCountryDetectorCommand extends Command
             $response = Http::get(self::CSV_URL);
 
             if ($response->ok()) {
-                Storage::put('storage/' . basename($storageFilePath), $response->body());
+                Storage::put($this->csvFilePathService->getCsvFileName(), $response->body());
                 $this->info('CSV file downloaded successfully.');
             } else {
                 $this->error('Failed to download CSV file.');

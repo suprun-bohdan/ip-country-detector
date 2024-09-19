@@ -15,4 +15,9 @@ class CsvFilePathService
     {
         return storage_path('app/' . self::TEMP_CSV_FILE);
     }
+
+    public function getCsvFileName(): string
+    {
+        return self::TEMP_CSV_FILE;
+    }
 }
