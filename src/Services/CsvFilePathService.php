@@ -13,6 +13,6 @@ class CsvFilePathService
      */
     public function getCsvFilePath(): string
     {
-        return base_path('storage/' . self::TEMP_CSV_FILE);
+        return storage_path(self::TEMP_CSV_FILE);
     }
 }
