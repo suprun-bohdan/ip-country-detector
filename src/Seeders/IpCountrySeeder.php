@@ -10,6 +10,12 @@ use Throwable;
 class IpCountrySeeder extends Seeder
 {
     private const TEMP_CSV_FILE = 'asn-country-ipv4.csv';
+    protected string $tableName;
+
+    public function __construct()
+    {
+        $this->tableName = $this->command->option('table') ?? 'default_table_name';
+    }
 
     /**
      * Run the database seeds.
@@ -19,6 +25,8 @@ class IpCountrySeeder extends Seeder
      */
     public function run(): void
     {
+        $this->tableName = $this->command->option('table') ?? 'default_table_name';
+
         $csvFilePath = storage_path(self::TEMP_CSV_FILE);
         $this->logMessage("CSV file path: $csvFilePath", 'info');
 
@@ -30,6 +38,13 @@ class IpCountrySeeder extends Seeder
         try {
             DB::transaction(function () use ($handle) {
                 $rowCount = 1;
+                $totalRows = 0;
+
+                while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                    $totalRows++;
+                }
+
+                rewind($handle);
 
                 while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                     [$firstIp, $lastIp, $country] = $data;
@@ -40,11 +55,10 @@ class IpCountrySeeder extends Seeder
                         'country' => $country,
                     ];
 
-                    $this->logMessage("Row № {$rowCount}: Processing record - First IP: {$firstIp}, Last IP: {$lastIp}, Country: {$country}", 'info');
+                    DB::table($this->tableName)->insert($record);
 
-                    $this->insertOrUpdate([$record]);
+                    echo "[{$rowCount}/{$totalRows}] - {$firstIp}\n";
 
-                    $this->logMessage("Row № {$rowCount}: Record inserted successfully.", 'info');
                     $rowCount++;
                 }
 
@@ -54,7 +68,6 @@ class IpCountrySeeder extends Seeder
         } catch (Throwable $e) {
             $this->logMessage("Failed to process CSV file: {$e->getMessage()}", 'error');
         }
-
     }
 
     private function logMessage(string $message, string $level): void
