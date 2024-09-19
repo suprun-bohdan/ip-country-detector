@@ -11,7 +11,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IpCountrySeeder extends Seeder
 {
-    private const TEMP_CSV_FILE = 'asn-country-ipv4.csv';
     protected string $tableName = 'ip_country';
 
     protected CsvFilePathService $csvFilePathService;
@@ -78,15 +77,5 @@ class IpCountrySeeder extends Seeder
 
         $output = new ConsoleOutput();
         $output->writeln("<comment>{$message}</comment>");
-    }
-
-    private function insertOrUpdate(array $records): void
-    {
-        foreach ($records as $record) {
-            DB::table('ip_country')->updateOrInsert(
-                ['first_ip' => $record['first_ip'], 'last_ip' => $record['last_ip']],
-                ['country' => $record['country']]
-            );
-        }
     }
 }
