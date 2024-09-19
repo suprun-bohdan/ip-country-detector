@@ -2,6 +2,7 @@
 
 namespace IpCountryDetector\Services;
 
+use Illuminate\Support\Facades\Storage;
 class CsvFilePathService
 {
     private const TEMP_CSV_FILE = 'asn-country-ipv4.csv';
@@ -13,7 +14,7 @@ class CsvFilePathService
      */
     public function getCsvFilePath(): string
     {
-        return storage_path('app/' . self::TEMP_CSV_FILE);
+        return Storage::path(self::TEMP_CSV_FILE);
     }
 
     public function getCsvFileName(): string
