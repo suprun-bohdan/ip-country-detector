@@ -52,13 +52,13 @@ class InstallIpCountryDetectorCommand extends Command
                 $this->info('CSV file already exists. Skipping download.');
             }
 
-            $this->info('Preparing file for migration... | 5 seconds...');
+            $this->info('Preparing file for migration...');
 
             sleep(2);
 
             $this->call('migrate');
 
-            $this->info('Preparing file for data import... | 5 seconds...');
+            $this->info('Preparing file for data import...');
             sleep(2);
             Artisan::call('db:seed', [
                 '--class' => 'IpCountryDetector\Seeders\IpCountrySeeder',
