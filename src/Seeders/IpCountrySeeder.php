@@ -67,21 +67,18 @@ class IpCountrySeeder extends Seeder
 
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
-                    $mysqlLoad = null;
-                    if (strtolower(config('database.default')) == 'mysql') {
-                        $mysqlLoad = shell_exec("ps aux | grep mysqld | grep -v grep | awk '{print $3}'");
-                        $mysqlLoad = trim($mysqlLoad) ?: 'N/A';
-                    }
+                    $threadsRunning = DB::select("SHOW STATUS LIKE 'Threads_running'");
+                    $threadsRunning = $threadsRunning[0]->Value ?? 'N/A';
 
                     $this->logMessage('info', sprintf(
-                        "[%6s%% | %6d / 100%% | %6d] - [%2s] - [%s - %s]",
+                        "[%6s%% | %6d / 100%% | %6d] - [%2s] - [%s - %s] - [Threads Running: %s]",
                         $percentage,
                         $rowCount,
                         $totalRows,
                         $country,
                         str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
                         str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
-                        $mysqlLoad
+                        $threadsRunning
                     ));
 
                     $rowCount++;
