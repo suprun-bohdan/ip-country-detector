@@ -59,7 +59,9 @@ class IpCountrySeeder extends Seeder
 
                     DB::table($this->tableName)->updateOrInsert($record);
 
-                    $this->logMessage('info', "[№ $rowCount / {$totalRows}] - [{$firstIp} - {$lastIp}] - [{$country}]");
+                    $percentage = number_format(($rowCount / $totalRows) * 100, 1);
+
+                    $this->logMessage('info', "[{$percentage}% | $rowCount / 100% | {$totalRows}] - [{$firstIp} - {$lastIp}] - [{$country}]");
 
                     $rowCount++;
                 }
