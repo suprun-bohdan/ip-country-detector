@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use IpCountryDetector\Services\IPCheckService;
-use Illuminate\Http\JsonResponse;
 
 class IPCheckController extends Controller
 {

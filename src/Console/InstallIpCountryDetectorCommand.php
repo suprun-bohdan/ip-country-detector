@@ -21,13 +21,20 @@ class InstallIpCountryDetectorCommand extends Command
     {
         $this->info('Starting installation of IP Country Detector package...');
 
-        $response = Http::get(self::CSV_URL);
+        if (!Storage::exists(self::STORAGE_PATH)) {
+            $this->info('CSV file not found. Downloading...');
+            $response = Http::get(self::CSV_URL);
 
-        if ($response->ok()) {
-            Storage::put(self::STORAGE_PATH, $response->body());
+            if ($response->ok()) {
+                Storage::put(self::STORAGE_PATH, $response->body());
+                $this->info('CSV file downloaded successfully.');
+            } else {
+                $this->error('Failed to download CSV file.');
+                return 1;
+            }
+        } else {
+            $this->info('CSV file already exists. Skipping download.');
         }
-
-        $this->info('CSV file downloaded successfully.');
 
         $this->call('migrate');
 
