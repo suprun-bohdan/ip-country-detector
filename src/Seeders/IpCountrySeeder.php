@@ -21,10 +21,10 @@ class IpCountrySeeder extends Seeder
     public function run(): void
     {
         $csvFilePath = storage_path(self::TEMP_CSV_FILE);
-        $this->logMessage("CSV file path: $csvFilePath", 'info');
+        $this->logMessage('info', "CSV file path: $csvFilePath");
 
         if (!$handle = fopen($csvFilePath, 'r')) {
-            $this->logMessage("Unable to open CSV file: $csvFilePath", 'error');
+            $this->logMessage('error', "Unable to open CSV file: $csvFilePath");
             return;
         }
 
