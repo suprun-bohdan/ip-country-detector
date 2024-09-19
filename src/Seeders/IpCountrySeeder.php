@@ -74,7 +74,7 @@ class IpCountrySeeder extends Seeder
                     }
 
                     $this->logMessage('info', sprintf(
-                        "[%6s%% | %6d / 100%% | %6d] - [%2s] - [%s - %s] | [MySQL Load: %s%%]",
+                        "[%6.1f%% | %6d / 100%% | %6d] - [%2s] - [%15s - %-15s] | [MySQL Load: %s%%]",
                         $percentage,
                         $rowCount,
                         $totalRows,
