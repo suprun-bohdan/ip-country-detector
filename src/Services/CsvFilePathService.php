@@ -21,4 +21,9 @@ class CsvFilePathService
     {
         return self::TEMP_CSV_FILE;
     }
+
+    public function putCsvFile($response): string
+    {
+        Storage::put($this->getCsvFileName(), $response->body());
+    }
 }
