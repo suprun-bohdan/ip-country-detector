@@ -70,7 +70,7 @@ class IpCountrySeeder extends Seeder
                     $mysqlLoad = null;
                     if (strtolower(config('database.default')) == 'mysql') {
                         $mysqlLoad = shell_exec("ps aux | grep mysqld | grep -v grep | awk '{print $3}'");
-                        $mysqlLoad = trim($mysqlLoad) ?: 'N/A';  // Очищаємо результат і на випадок відсутності значення ставимо 'N/A'
+                        $mysqlLoad = trim($mysqlLoad) ?: 'N/A';
                     }
 
                     $this->logMessage('info', sprintf(
