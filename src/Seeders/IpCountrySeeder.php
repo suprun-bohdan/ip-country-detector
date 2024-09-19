@@ -41,6 +41,8 @@ class IpCountrySeeder extends Seeder
             DB::transaction(function () use ($handle) {
                 $dataRows = [];
                 $rowCount = 1;
+                $batchSize = 1000;
+                $batch = [];
 
                 while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                     $dataRows[] = $data;
@@ -52,18 +54,19 @@ class IpCountrySeeder extends Seeder
 
                 $totalRows = count($dataRows);
 
-                rewind($handle);
-
                 foreach ($dataRows as $data) {
                     [$firstIp, $lastIp, $country] = $data;
 
-                    $record = [
+                    $batch[] = [
                         'first_ip' => ip2long($firstIp),
                         'last_ip' => ip2long($lastIp),
                         'country' => $country,
                     ];
 
-                    DB::table($this->tableName)->updateOrInsert($record);
+                    if (count($batch) >= $batchSize) {
+                        DB::table($this->tableName)->insertOrIgnore($batch);
+                        $batch = [];
+                    }
 
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
@@ -74,10 +77,14 @@ class IpCountrySeeder extends Seeder
                         $totalRows,
                         $country,
                         str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
-                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
+                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT)
                     ));
 
                     $rowCount++;
+                }
+
+                if (!empty($batch)) {
+                    DB::table($this->tableName)->insertOrIgnore($batch);
                 }
 
                 fclose($handle);
@@ -86,6 +93,7 @@ class IpCountrySeeder extends Seeder
         } catch (Throwable $e) {
             $this->logMessage('error', "Failed to process CSV file: {$e->getMessage()}");
         }
+
     }
 
     private function logMessage(string $level, string $message): void
