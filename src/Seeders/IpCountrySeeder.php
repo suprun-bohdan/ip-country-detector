@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IpCountrySeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class IpCountrySeeder extends Seeder
      */
     public function run(): void
     {
-        $csvFilePath = storage_path(self::TEMP_CSV_FILE);
+        $csvFilePath = storage_path('app/' . self::TEMP_CSV_FILE);
         $this->logMessage('info', "CSV file path: $csvFilePath");
 
         if (!$handle = fopen($csvFilePath, 'r')) {
@@ -50,7 +51,7 @@ class IpCountrySeeder extends Seeder
 
                     DB::table($this->tableName)->insert($record);
 
-                    $this->logMessage('info', "{$rowCount}/{$totalRows}] - {$firstIp}] - {$lastIp} - {$country}");
+                    $this->logMessage('info', "[№ $rowCount / {$totalRows}] - [{$firstIp} - {$lastIp}] - [{$country}]");
 
                     $rowCount++;
                 }
@@ -66,6 +67,9 @@ class IpCountrySeeder extends Seeder
     private function logMessage(string $level, string $message): void
     {
         Log::{$level}($message);
+
+        $output = new ConsoleOutput();
+        $output->writeln("<comment>{$message}</comment>");
     }
 
     private function insertOrUpdate(array $records): void
