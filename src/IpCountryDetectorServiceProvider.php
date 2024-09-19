@@ -25,29 +25,10 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             __DIR__ . '/config/ipcountry.php', 'ipcountry'
         );
 
-        $this->app->singleton(Configuration::class, function ($app) {
-            $publicKeyPath = config('ipcountry.keys.public');
-            $privateKeyPath = config('ipcountry.keys.private');
-
-            $publicKey = InMemory::file($publicKeyPath);
-            $privateKey = InMemory::file($privateKeyPath);
-
-            return Configuration::forAsymmetricSigner(
-                new Sha256(),
-                $privateKey,
-                $publicKey
-            );
-        });
-
-        $this->app->singleton(JWTService::class, function ($app) {
-            return new JWTService($app->make(Configuration::class));
-        });
-
         $this->app->singleton(ErrorHandlerService::class, function ($app) {
             return new ErrorHandlerService();
         });
 
-        $this->app->bind(JWTServiceInterface::class, JWTService::class);
         $this->app->bind(ErrorHandlerInterface::class, ErrorHandlerService::class);
         $this->app->bind(IpCountryServiceInterface::class, IpApiService::class);
 
