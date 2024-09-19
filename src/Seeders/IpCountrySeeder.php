@@ -39,16 +39,22 @@ class IpCountrySeeder extends Seeder
 
         try {
             DB::transaction(function () use ($handle) {
+                $dataRows = [];
                 $rowCount = 1;
-                $totalRows = 0;
 
                 while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-                    $totalRows++;
+                    $dataRows[] = $data;
                 }
+
+                usort($dataRows, function ($a, $b) {
+                    return strcmp($a[2], $b[2]);
+                });
+
+                $totalRows = count($dataRows);
 
                 rewind($handle);
 
-                while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                foreach ($dataRows as $data) {
                     [$firstIp, $lastIp, $country] = $data;
 
                     $record = [
