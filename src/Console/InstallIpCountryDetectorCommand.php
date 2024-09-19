@@ -21,7 +21,7 @@ class InstallIpCountryDetectorCommand extends Command
     {
         $this->info('Starting installation of IP Country Detector package...');
 
-        if (!Storage::exists(self::STORAGE_PATH)) {
+        if (!Storage::exists(storage_path(self::STORAGE_PATH))) {
             $this->info('CSV file not found. Downloading...');
             $response = Http::get(self::CSV_URL);
 
