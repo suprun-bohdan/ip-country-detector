@@ -67,6 +67,12 @@ class IpCountrySeeder extends Seeder
 
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
+                    $mysqlLoad = null;
+                    if (strtolower(config('database.default')) == 'mysql') {
+                        $mysqlLoad = shell_exec("ps aux | grep mysqld | grep -v grep | awk '{print $3}'");
+                        $mysqlLoad = trim($mysqlLoad) ?: 'N/A';  // Очищаємо результат і на випадок відсутності значення ставимо 'N/A'
+                    }
+
                     $this->logMessage('info', sprintf(
                         "[%6s%% | %6d / 100%% | %6d] - [%2s] - [%s - %s]",
                         $percentage,
@@ -74,7 +80,8 @@ class IpCountrySeeder extends Seeder
                         $totalRows,
                         $country,
                         str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
-                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT)
+                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
+                        $mysqlLoad
                     ));
 
                     $rowCount++;
