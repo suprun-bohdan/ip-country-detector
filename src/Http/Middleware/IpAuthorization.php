@@ -30,14 +30,15 @@ class IpAuthorization
     public function handle(Request $request, Closure $next): mixed
     {
         $authEnabled = (bool) config('ipcountry.auth_enabled');
-        $authKey = config('ipcountry.auth_key');
-
-        if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
-            return new JsonResponse(['message' => 'Unauthorized'], 401);
-        }
 
         if ($authEnabled) {
             try {
+                $authKey = config('ipcountry.auth_key');
+
+                if ($authEnabled && $this->isUnauthorized($request, $authKey)) {
+                      return new JsonResponse(['message' => 'Unauthorized'], 401);
+                 }
+
                 $jwt = $this->extractTokenFromHeader($request);
                 $this->jwtService->parseToken($jwt);
             } catch (Exception $e) {
