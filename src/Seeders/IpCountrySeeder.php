@@ -30,6 +30,7 @@ class IpCountrySeeder extends Seeder
     {
         $csvFilePath = $this->csvFilePathService->getCsvFilePath();
         $this->logMessage('info', "CSV file path: $csvFilePath");
+        sleep(5);
 
         if (!$handle = fopen($csvFilePath, 'r')) {
             $this->logMessage('error', "Unable to open CSV file: $csvFilePath");
@@ -76,6 +77,6 @@ class IpCountrySeeder extends Seeder
         Log::{$level}($message);
 
         $output = new ConsoleOutput();
-        $output->writeln("<comment>{$message}</comment>");
+        $output->writeln("<bg=white;fg=black>{$message}</bg=yellow>");
     }
 }
