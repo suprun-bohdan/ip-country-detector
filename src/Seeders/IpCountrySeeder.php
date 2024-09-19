@@ -67,7 +67,7 @@ class IpCountrySeeder extends Seeder
 
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
-                    $this->logMessage('info', "[{$percentage}% | $rowCount / 100% | {$totalRows}] - [{$firstIp} - {$lastIp}] - [{$country}]");
+                    $this->logMessage('info', "[{$percentage}% | $rowCount / 100% | {$totalRows}] - [{$country}] - [{$firstIp} - {$lastIp}]");
 
                     $rowCount++;
                 }
