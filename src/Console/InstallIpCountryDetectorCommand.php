@@ -28,11 +28,17 @@ class InstallIpCountryDetectorCommand extends Command
     {
         $this->info('Starting installation of IP Country Detector package...');
 
+        sleep(2);
+
+
         try {
             $storageFilePath = $this->csvFilePathService->getCsvFilePath();
 
             if (!file_exists($storageFilePath)) {
                 $this->info('CSV file not found. Downloading...');
+
+                sleep(2);
+
                 $response = Http::get(self::CSV_URL);
 
                 if ($response->ok()) {
@@ -46,12 +52,14 @@ class InstallIpCountryDetectorCommand extends Command
                 $this->info('CSV file already exists. Skipping download.');
             }
 
-            $this->info('Preparing file for migration...');
+            $this->info('Preparing file for migration... | 5 seconds...');
+
+            sleep(2);
 
             $this->call('migrate');
 
-            $this->info('Preparing file for data import...');
-
+            $this->info('Preparing file for data import... | 5 seconds...');
+            sleep(2);
             Artisan::call('db:seed', [
                 '--class' => 'IpCountryDetector\Seeders\IpCountrySeeder',
             ]);

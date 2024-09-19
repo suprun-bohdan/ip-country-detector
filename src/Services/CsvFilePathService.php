@@ -24,6 +24,6 @@ class CsvFilePathService
 
     public function putCsvFile($response): string
     {
-        Storage::put($this->getCsvFileName(), $response->body());
+        return Storage::put($this->getCsvFileName(), $response->body());
     }
 }
