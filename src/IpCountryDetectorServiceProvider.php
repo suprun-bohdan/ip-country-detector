@@ -3,13 +3,9 @@
 namespace IpCountryDetector;
 
 use Illuminate\Support\ServiceProvider;
-use IpCountryDetector\Http\Controllers\IPCheckController;
-use IpCountryDetector\Services\IPCheckService;
 use IpCountryDetector\Console\InstallIpCountryDetectorCommand;
-use IpCountryDetector\Services\Interfaces\ErrorHandlerInterface;
 use IpCountryDetector\Services\Interfaces\IpCountryServiceInterface;
 use IpCountryDetector\Services\IpApiService;
-use IpCountryDetector\Services\ErrorHandlerService;
 
 class IpCountryDetectorServiceProvider extends ServiceProvider
 {
@@ -18,17 +14,6 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/config/ipcountry.php', 'ipcountry'
         );
-
-        $this->app->singleton(ErrorHandlerService::class, function ($app) {
-            return new ErrorHandlerService();
-        });
-
-        $this->app->bind(ErrorHandlerInterface::class, ErrorHandlerService::class);
-        $this->app->bind(IpCountryServiceInterface::class, IpApiService::class);
-
-        $this->app->singleton('ip-detector', function ($app) {
-            return new IPCheckController($app->make(IPCheckService::class));
-        });
     }
 
     public function boot(): void

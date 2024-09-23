@@ -50,7 +50,6 @@ class IPCheckService
             throw new \RuntimeException('Country not found for this IP address');
         } catch (\Exception $e) {
             Log::error("IP to Country Error: {$e->getMessage()}");
-            throw new HttpException(500, 'Internal Server Error');
         }
     }
 
