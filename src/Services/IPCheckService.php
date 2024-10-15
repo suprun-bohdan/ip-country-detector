@@ -4,6 +4,7 @@ namespace IpCountryDetector\Services;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use IpCountryDetector\Enums\CountryStatus;
 
 class IPCheckService
 {
@@ -21,13 +22,13 @@ class IPCheckService
         try {
             $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
             if ($cachedCountry) {
-                return $cachedCountry;
+                return CountryStatus::SUCCESS->value;
             }
 
             $ipLong = $this->validateAndConvertIp($ipAddress);
 
             $country = $this->findCountryByIp($ipLong);
-            if ($country !== "IP Address not found in the range.") {
+            if ($country != CountryStatus::IP_NOT_IN_RANGE->value) {
                 $this->ipCacheService->setCountryToCache($ipAddress, $country);
                 return $country;
             }
@@ -36,7 +37,7 @@ class IPCheckService
         } catch (\Exception $e) {
             Log::error('Error determining country by IP: ' . $e->getMessage());
 
-            return $this->timeZoneToCountry($timeZone) ?? 'Unknown';
+            return $this->timeZoneToCountry($timeZone) ?? CountryStatus::SUCCESS->value;
         }
     }
 
@@ -63,10 +64,10 @@ class IPCheckService
         $country = $this->fetchCountryFromApi($ipAddress);
         if ($country !== 'Country not found') {
             $this->ipCacheService->setCountryToCache($ipAddress, $country);
-            return $country;
+            return CountryStatus::SUCCESS->value;
         }
 
-        return '0';
+        return CountryStatus::NOT_FOUND->value;
     }
 
     public function timeZoneToCountry(string $timeZone): string
@@ -77,7 +78,7 @@ class IPCheckService
 
             return strtoupper($region['country_code']);
         } catch (\Exception $e) {
-            return 'Unknown';
+            return CountryStatus::NOT_FOUND->value;
         }
     }
 
@@ -90,10 +91,10 @@ class IPCheckService
             ->first();
 
         if ($result) {
-            return $result->country;
+            return CountryStatus::SUCCESS->value;
         }
 
-        return "IP Address not found in the range.";
+        return CountryStatus::IP_NOT_IN_RANGE->value;
     }
 
     private function fetchCountryFromApi(string $ipAddress): string
