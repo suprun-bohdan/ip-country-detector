@@ -37,7 +37,7 @@ class IPCheckService
         } catch (\Exception $e) {
             Log::error('Error determining country by IP: ' . $e->getMessage());
 
-            return $this->timeZoneToCountry($timeZone) ?? CountryStatus::SUCCESS->value;
+            return $this->timeZoneToCountry($timeZone) ?? CountryStatus::UNKNOWN->value;
         }
     }
 
