@@ -20,7 +20,6 @@ class IPCheckController extends Controller
     /**
      * @throws Exception
      */
-    use IpCountryDetector\Enums\CountryStatus;
 
     public function checkIP(Request $request): array
     {
