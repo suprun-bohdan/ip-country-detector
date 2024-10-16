@@ -30,20 +30,28 @@ class IPCheckController extends Controller
         try {
             $country = $ipAddress
                 ? $this->ipCheckService->ipToCountry($ipAddress)
-                : throw new \InvalidArgumentException('IP address is required');
+                : null;
         } catch (\Exception $e) {
             Log::warning("IP to Country failed, switching to timezone: {$e->getMessage()}");
-            $country = $this->ipCheckService->timeZoneToCountry($timeZone);
+            $country = null;
+        }
+
+        if (!$country) {
+            try {
+                $country = $this->ipCheckService->timeZoneToCountry($timeZone);
+            } catch (\Exception $e) {
+                Log::warning("TimeZone to Country failed: {$e->getMessage()}");
+                $country = null;
+            }
         }
 
         if (empty($ipAddress) || $ipAddress === '127.0.0.1') {
+            Log::info('Local IP or missing IP detected, using timezone and country fallback.');
             return ['timezone' => $timeZone, 'country' => $country];
         }
 
-        return ['ip' => $ipAddress ?? 'Unknown IP', 'country' => $country];
+        return ['ip' => $ipAddress, 'timezone' => $timeZone, 'country' => $country];
     }
-
-
 
     /**
      * @throws Exception
