@@ -84,7 +84,7 @@ class IPCheckService
 
     private function findCountryByIp(int $ipLong): string
     {
-        $result = DB::table('ip_country')
+        $result = \DB::table('ip_country')
             ->where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
             ->select('country')
