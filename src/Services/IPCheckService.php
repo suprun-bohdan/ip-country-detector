@@ -17,7 +17,7 @@ class IPCheckService
         $this->ipApiService = $ipApiService;
     }
 
-    public function ipToCountry(string $ipAddress, string $timeZone): string
+    public function ipToCountry(string $ipAddress = null, string $timeZone = null): string
     {
         try {
             $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
