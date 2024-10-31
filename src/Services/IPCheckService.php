@@ -22,7 +22,7 @@ class IPCheckService
     {
         try {
             $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
-            if ($cachedCountry) {
+            if (is_string($cachedCountry) && $cachedCountry) {
                 return $cachedCountry;
             }
 
