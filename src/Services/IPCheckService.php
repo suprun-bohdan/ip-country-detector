@@ -5,6 +5,7 @@ namespace IpCountryDetector\Services;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use IpCountryDetector\Enums\CountryStatus;
+use IpCountryDetector\Models\IpCountry;
 
 class IPCheckService
 {
@@ -84,8 +85,7 @@ class IPCheckService
 
     private function findCountryByIp(int $ipLong): string
     {
-        $result = \DB::table('ip_country')
-            ->where('first_ip', '<=', $ipLong)
+        $result = IpCountry::where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
             ->select('country')
             ->first();
