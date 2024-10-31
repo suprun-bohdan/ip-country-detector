@@ -23,7 +23,7 @@ class IPCheckService
         try {
             $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
             if ($cachedCountry) {
-                return CountryStatus::SUCCESS->value;
+                return $cachedCountry;
             }
 
             $ipLong = $this->validateAndConvertIp($ipAddress);
