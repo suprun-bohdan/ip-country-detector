@@ -65,7 +65,7 @@ class IPCheckService
         $country = $this->fetchCountryFromApi($ipAddress);
         if ($country !== 'Country not found') {
             $this->ipCacheService->setCountryToCache($ipAddress, $country);
-            return CountryStatus::SUCCESS->value;
+            return $country;
         }
 
         return CountryStatus::NOT_FOUND->value;
@@ -90,11 +90,7 @@ class IPCheckService
             ->select('country')
             ->first();
 
-        if ($result) {
-            return CountryStatus::SUCCESS->value;
-        }
-
-        return CountryStatus::IP_NOT_IN_RANGE->value;
+        return $result ? $result->country : CountryStatus::IP_NOT_IN_RANGE->value;
     }
 
     private function fetchCountryFromApi(string $ipAddress): string
