@@ -66,7 +66,7 @@ class InstallIpCountryDetectorCommand extends Command
             sleep(2);
 
             Artisan::call('db:seed', [
-                '--class' => 'IpCountryDetector\Database\Seeders\IpCountrySeeder',
+                '--class' => 'IpCountryDetector\database\seeders\IpCountrySeeder',
             ]);
 
             $this->info('Database seeded successfully.');

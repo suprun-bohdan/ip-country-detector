@@ -2,7 +2,6 @@
 
 namespace IpCountryDetector;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\ServiceProvider;
 use IpCountryDetector\Console\InstallIpCountryDetectorCommand;
 use IpCountryDetector\Database\Seeders\IpCountrySeeder;
@@ -30,18 +29,8 @@ class IpCountryDetectorServiceProvider extends ServiceProvider
             $this->commands([
                 InstallIpCountryDetectorCommand::class,
             ]);
-
-            $this->loadSeeds();
         }
 
         $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
-    }
-
-    /**
-     * @throws BindingResolutionException
-     */
-    protected function loadSeeds(): void
-    {
-        $this->app->make('Illuminate\Database\Seeder')->call(IpCountrySeeder::class);
     }
 }
