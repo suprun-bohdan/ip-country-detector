@@ -82,13 +82,17 @@ class IpCountrySeeder extends Seeder
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
                     $this->logMessage('info', sprintf(
-                        "[%6.1f%% | %6d / 100%% | %6d] - [%2s] - [%15s - %-15s]",
+                        "[%6.1f%% | %6d / 100%% | %6d] - Country: [%2s] - IP Range: [%15s - %-15s] - Region: [%s] - Subregion: [%s] - City: [%s] - Timezone: [%s]",
                         $percentage,
                         $rowCount,
                         $totalRows,
                         $country,
                         str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
-                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT)
+                        str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
+                        $region,
+                        $subregion,
+                        $city,
+                        $timezone
                     ));
 
                     $rowCount++;
