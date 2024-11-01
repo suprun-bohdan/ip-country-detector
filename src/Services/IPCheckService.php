@@ -87,7 +87,6 @@ class IPCheckService
     {
         $result = IpCountry::where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
-            ->select('country')
             ->first();
 
         return $result ? $result->country : CountryStatus::IP_NOT_IN_RANGE->value;
