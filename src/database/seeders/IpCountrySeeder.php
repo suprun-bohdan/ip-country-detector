@@ -62,7 +62,7 @@ class IpCountrySeeder extends Seeder
                 $totalRows = count($dataRows);
 
                 foreach ($dataRows as $data) {
-                    [$firstIp, $lastIp, $country, $region, $subregion, $city, , , , $timezone] = $data;
+                    [$firstIp, $lastIp, $country, $region, $subregion, $city, , $latitude, $longitude, $timezone] = $data;
 
                     $batch[] = [
                         'first_ip' => $this->convertIpToNumeric($firstIp),
@@ -70,6 +70,8 @@ class IpCountrySeeder extends Seeder
                         'country' => $country,
                         'region' => $region,
                         'subregion' => $subregion,
+                        'latitude' => $latitude,
+                        'longitude' => $longitude,
                         'city' => $city,
                         'timezone' => $timezone,
                     ];
@@ -82,7 +84,7 @@ class IpCountrySeeder extends Seeder
                     $percentage = number_format(($rowCount / $totalRows) * 100, 1);
 
                     $this->logMessage('info', sprintf(
-                        "[%6.1f%% | %6d / 100%% | %6d] - Country: [%2s] - IP Range: [%15s - %-15s] - Region: [%s] - Subregion: [%s] - City: [%s] - Timezone: [%s]",
+                        "[%6.1f%% | %6d / 100%% | %6d] - Country: [%2s] - IP Range: [%15s - %-15s] - Region: [%s] - Subregion: [%s] - City: [%s] Map: [%s : %s] - Timezone: [%s]",
                         $percentage,
                         $rowCount,
                         $totalRows,
@@ -92,6 +94,8 @@ class IpCountrySeeder extends Seeder
                         $region,
                         $subregion,
                         $city,
+                        $latitude,
+                        $longitude,
                         $timezone
                     ));
 
