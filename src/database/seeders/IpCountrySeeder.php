@@ -62,7 +62,7 @@ class IpCountrySeeder extends Seeder
                 $totalRows = count($dataRows);
 
                 foreach ($dataRows as $data) {
-                    [$firstIp, $lastIp, $country, $region, $subregion, $city, $latitude, $longitude, $timezone] = $data;
+                    [$firstIp, $lastIp, $country, $region, $subregion, $city, , , , $timezone] = $data;
 
                     $batch[] = [
                         'first_ip' => $this->convertIpToNumeric($firstIp),
