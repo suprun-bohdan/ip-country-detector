@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use IpCountryDetector\Database\Seeders\IpCountrySeeder;
 use IpCountryDetector\Services\CsvFilePathService;
 use Throwable;
 
@@ -63,8 +64,9 @@ class InstallIpCountryDetectorCommand extends Command
 
             $this->info('Preparing file for data import...');
             sleep(2);
+
             Artisan::call('db:seed', [
-                '--class' => 'IpCountryDetector\\Database\\Seeders\\IpCountrySeeder',
+                '--class' => 'IpCountryDetector\Database\Seeders\IpCountrySeeder',
             ]);
 
             $this->info('Database seeded successfully.');
