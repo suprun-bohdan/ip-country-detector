@@ -3,8 +3,10 @@
 namespace seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use IpCountryDetector\Models\IpCountry;
 use IpCountryDetector\Services\CsvFilePathService;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -27,6 +29,12 @@ class IpCountrySeeder extends Seeder
     }
     public function run(): void
     {
+        IpCountry::truncate();
+        $this->logMessage('info', "Table 'ip_country' has been cleared.");
+
+        Artisan::call('migrate');
+        $this->logMessage('info', "Database migrations have been run.");
+
         $csvFilePath = $this->csvFilePathService->getCsvFilePath();
         $this->logMessage('info', "CSV file path: $csvFilePath");
         sleep(5);
@@ -54,12 +62,16 @@ class IpCountrySeeder extends Seeder
                 $totalRows = count($dataRows);
 
                 foreach ($dataRows as $data) {
-                    [$firstIp, $lastIp, $country] = $data;
+                    [$firstIp, $lastIp, $country, $region, $subregion, $city, $latitude, $longitude, $timezone] = $data;
 
                     $batch[] = [
-                        'first_ip' => ip2long($firstIp),
-                        'last_ip' => ip2long($lastIp),
+                        'first_ip' => $this->convertIpToNumeric($firstIp),
+                        'last_ip' => $this->convertIpToNumeric($lastIp),
                         'country' => $country,
+                        'region' => $region,
+                        'subregion' => $subregion,
+                        'city' => $city,
+                        'timezone' => $timezone,
                     ];
 
                     if (count($batch) >= $batchSize) {
@@ -94,6 +106,22 @@ class IpCountrySeeder extends Seeder
         }
 
     }
+
+    function convertIpToNumeric($ip): float|int|string
+    {
+        if (is_numeric($ip)) {
+            return $ip;
+        }
+
+        $numericIp = ip2long($ip);
+
+        if ($numericIp === false) {
+            throw new InvalidArgumentException("Wrong format: $ip");
+        }
+
+        return $numericIp;
+    }
+
 
     private function logMessage(string $level, string $message): void
     {
