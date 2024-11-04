@@ -30,7 +30,7 @@ class IPCheckService
 
             $country = $this->findCountryByIp($ipLong);
             if ($country != CountryStatus::IP_NOT_IN_RANGE->value) {
-//                $this->ipCacheService->setCountryToCache($ipAddress, $country);
+                $this->ipCacheService->setCountryToCache($ipAddress, $country);
                 return $country;
             }
 
