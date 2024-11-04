@@ -21,10 +21,10 @@ class IPCheckService
     public function ipToCountry(string $ipAddress = null, string $timeZone = null): string|array|object
     {
         try {
-            /*            $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
-                        if (is_string($cachedCountry) && $cachedCountry) {
-                            return $cachedCountry;
-                        }*/
+            $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
+            if (is_string($cachedCountry) && $cachedCountry) {
+                return $cachedCountry;
+            }
 
             $ipLong = $this->validateAndConvertIp($ipAddress);
 
