@@ -85,10 +85,12 @@ class IPCheckService
 
     private function findCountryByIp(int $ipLong): array|IpCountry
     {
-        $result = IpCountry::where('first_ip', '<=', $ipLong)
+        $result = IpCountry::select('country', 'region', 'subregion', 'city', 'timezone', 'latitude', 'longitude')
+            ->where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
             ->first();
-        return $result->toArray();
+
+        return $result ? $result->toArray() : [];
     }
 
     private function fetchCountryFromApi(string $ipAddress): string|array
