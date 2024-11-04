@@ -23,15 +23,15 @@ class IPCheckService
         try {
             $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
             if (is_string($cachedCountry) && $cachedCountry) {
-                return $cachedCountry;
+                return json_decode($cachedCountry, true);
             }
 
             $ipLong = $this->validateAndConvertIp($ipAddress);
 
             $country = $this->findCountryByIp($ipLong);
             if ($country != CountryStatus::IP_NOT_IN_RANGE->value) {
-                $this->ipCacheService->setCountryToCache($ipAddress, $country['country']);
-                return $country['country'];
+                $this->ipCacheService->setCountryToCache($ipAddress, $country);
+                return $country;
             }
 
             return $this->fetchCountryAndCache($ipAddress);
@@ -60,7 +60,7 @@ class IPCheckService
         return $cachedCountry ?: null;
     }
 
-    private function fetchCountryAndCache(string $ipAddress): string
+    private function fetchCountryAndCache(string $ipAddress): array|string
     {
         $country = $this->fetchCountryFromApi($ipAddress);
         if ($country !== 'Country not found') {
@@ -91,7 +91,7 @@ class IPCheckService
         return $result->toArray();
     }
 
-    private function fetchCountryFromApi(string $ipAddress): string
+    private function fetchCountryFromApi(string $ipAddress): string|array
     {
         return $this->ipApiService->getCountry($ipAddress);
     }
