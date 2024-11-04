@@ -38,7 +38,7 @@ class IPCheckController extends Controller
                 $country = $this->ipCheckService->timeZoneToCountry($timeZone);
                 $countryStatus = $country ? CountryStatus::IP_NOT_IN_RANGE : CountryStatus::NOT_FOUND;
             } else {
-                $country = $this->ipCheckService->ipToCountry(trim($ipAddress), trim($timeZone));
+                $country = $this->ipCheckService->ipToCountry($ipAddress, $timeZone);
                 $countryStatus = CountryStatus::SUCCESS;
             }
         } catch (\Exception $e) {
@@ -47,13 +47,18 @@ class IPCheckController extends Controller
             $countryStatus = CountryStatus::NOT_FOUND;
         }
 
-
         return [
             'ip' => $ipAddress,
+            'country' => $country['country'] ?? 'Unknown',
+            'region' => $country['region'] ?? 'Unknown',
+            'subregion' => $country['subregion'] ?? 'Unknown',
+            'city' => $country['city'] ?? 'Unknown',
             'timezone' => $timeZone,
-            'country' => $country ?? 'Unknown',
+            'latitude' => $country['latitude'] ?? 'Unknown',
+            'longitude' => $country['longitude'] ?? 'Unknown',
             'status' => $countryStatus->value
         ];
+
     }
 
 }

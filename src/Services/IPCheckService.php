@@ -18,19 +18,19 @@ class IPCheckService
         $this->ipApiService = $ipApiService;
     }
 
-    public function ipToCountry(string $ipAddress = null, string $timeZone = null): string
+    public function ipToCountry(string $ipAddress = null, string $timeZone = null): string|array|object
     {
         try {
-            $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
-            if (is_string($cachedCountry) && $cachedCountry) {
-                return $cachedCountry;
-            }
+            /*            $cachedCountry = $this->getCachedCountryOrFetch($ipAddress);
+                        if (is_string($cachedCountry) && $cachedCountry) {
+                            return $cachedCountry;
+                        }*/
 
             $ipLong = $this->validateAndConvertIp($ipAddress);
 
             $country = $this->findCountryByIp($ipLong);
             if ($country != CountryStatus::IP_NOT_IN_RANGE->value) {
-                $this->ipCacheService->setCountryToCache($ipAddress, $country);
+//                $this->ipCacheService->setCountryToCache($ipAddress, $country);
                 return $country;
             }
 
@@ -71,7 +71,7 @@ class IPCheckService
         return CountryStatus::NOT_FOUND->value;
     }
 
-    public function timeZoneToCountry(string $timeZone): string
+    public function timeZoneToCountry(string $timeZone): array|string
     {
         try {
             $timezone = new \DateTimeZone($timeZone);
@@ -83,13 +83,12 @@ class IPCheckService
         }
     }
 
-    private function findCountryByIp(int $ipLong): string
+    private function findCountryByIp(int $ipLong): array|IpCountry
     {
         $result = IpCountry::where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
             ->first();
-
-        return $result ? $result->country : CountryStatus::IP_NOT_IN_RANGE->value;
+        return $result->toArray();
     }
 
     private function fetchCountryFromApi(string $ipAddress): string
