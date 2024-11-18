@@ -46,17 +46,22 @@ class IpCountrySeeder extends Seeder
 
         try {
             $dataRows = [];
-            $batchSize = 1000;
-            $rowCount = 0;
-
-            fgetcsv($handle, 1000, ",");
-
-            $this->logMessage('info', "Starting CSV import in batches...");
+            $rowCount = 1;
 
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                $dataRows[] = $data;
+            }
+
+            usort($dataRows, function ($a, $b) {
+                return strcmp($a[2], $b[2]);
+            });
+
+            $totalRows = count($dataRows);
+
+            foreach ($dataRows as $data) {
                 [$firstIp, $lastIp, $country, $region, $subregion, $city, , $latitude, $longitude, $timezone] = $data;
 
-                $dataRows[] = [
+                $record = [
                     'first_ip' => $this->convertIpToNumeric($firstIp),
                     'last_ip' => $this->convertIpToNumeric($lastIp),
                     'country' => $country,
@@ -68,25 +73,31 @@ class IpCountrySeeder extends Seeder
                     'timezone' => $timezone,
                 ];
 
+                IpCountry::insertOrIgnore($record);
+
+                $this->logMessage('info', sprintf(
+                    "[%6.1f%% | %6d / 100%% | %6d] - Country: [%2s] - IP Range: [%15s - %-15s] - Region: [%s] - Subregion: [%s] - City: [%s] Map: [%s : %s] - Timezone: [%s]",
+                    number_format(($rowCount / $totalRows) * 100, 1),
+                    $rowCount,
+                    $totalRows,
+                    $country,
+                    str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
+                    str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
+                    $region,
+                    $subregion,
+                    $city,
+                    $latitude,
+                    $longitude,
+                    $timezone
+                ));
+
                 $rowCount++;
-
-                if (count($dataRows) >= $batchSize) {
-                    IpCountry::insertOrIgnore($dataRows);
-                    $dataRows = [];
-
-                    $this->logMessage('info', "Inserted {$rowCount} records so far...");
-                }
-            }
-
-            if (!empty($dataRows)) {
-                IpCountry::insertOrIgnore($dataRows);
-                $this->logMessage('info', "Final batch inserted. Total records: {$rowCount}.");
             }
 
             fclose($handle);
-            $this->logMessage('info', "CSV import completed successfully.");
+            $this->logMessage('info', "CSV processing completed and file closed.");
         } catch (Throwable $e) {
-            $this->logMessage('error', "Failed to import CSV file: {$e->getMessage()}");
+            $this->logMessage('error', "Failed to process CSV file: {$e->getMessage()}");
         }
 
     }
