@@ -129,6 +129,10 @@ class IpCountrySeeder extends Seeder
         $username = config('database.connections.mysql.username');
         $password = config('database.connections.mysql.password');
 
+        DB::statement("SET GLOBAL max_allowed_packet = 512 * 1024 * 1024");
+
+        $this->logMessage('info', "Set max_allowed_packet to 512 MB temporally");
+
         $command = [
             'mysql',
             '--host=' . $host,
