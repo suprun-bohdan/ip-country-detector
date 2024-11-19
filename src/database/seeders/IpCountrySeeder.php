@@ -106,6 +106,7 @@ class IpCountrySeeder extends Seeder
                     addslashes($timezone)
                 );
 
+                fwrite($sqlDump, "\n-- Inserting row: $firstIp - $lastIp\n");
                 fwrite($sqlDump, ($isFirstRow ? "" : ",\n") . $values);
                 $isFirstRow = false;
             }
@@ -133,6 +134,7 @@ class IpCountrySeeder extends Seeder
             '--host=' . $host,
             '--user=' . $username,
             '--password=' . $password,
+            '--verbose',
             $database,
         ];
 
