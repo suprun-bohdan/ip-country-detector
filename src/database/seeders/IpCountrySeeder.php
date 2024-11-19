@@ -2,6 +2,7 @@
 
 namespace IpCountryDetector\Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,7 @@ class IpCountrySeeder extends Seeder
     {
         $this->csvFilePathService = $csvFilePathService;
     }
+
     public function run(): void
     {
         IpCountry::truncate();
@@ -48,49 +50,107 @@ class IpCountrySeeder extends Seeder
 
 
         try {
-            $this->logMessage('info', "Starting CSV import using mysqlimport...");
+            $this->logMessage('info', "Converting CSV to SQL dump...");
 
-            $database = config('database.connections.mysql.database');
-            $host = config('database.connections.mysql.host');
-            $username = config('database.connections.mysql.username');
-            $password = config('database.connections.mysql.password');
-            $tableName = (new IpCountry())->getTable();
+            $sqlDumpPath = storage_path('app/ip_country_dump.sql');
+            $this->convertCsvToSql($csvFilePath, $sqlDumpPath);
 
-            $command = [
-                'mysqlimport',
-                '--local',
-                '--host=' . $host,
-                '--user=' . $username,
-                '--password=' . $password,
-                '--fields-terminated-by=,',
-                '--lines-terminated-by=\n',
-                '--ignore-lines=1',
-                '--columns=first_ip,last_ip,country,region,subregion,city,latitude,longitude,timezone',
-                $database,
-                $csvFilePath,
-            ];
+            $this->logMessage('info', "SQL dump created at: $sqlDumpPath");
+            $this->logMessage('info', "Starting SQL dump import...");
 
-            $process = new Process($command);
-            $process->setTimeout(3600);
-            $process->start();
+            $this->importSqlDump($sqlDumpPath);
 
-            foreach ($process as $type => $data) {
-                if ($process::OUT === $type) {
-                    $this->logMessage('info', $data);
-                } else { // $process::ERR
-                    $this->logMessage('error', $data);
-                }
-            }
-
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            $this->logMessage('info', "CSV import completed successfully.");
+            $this->logMessage('info', "SQL dump imported successfully.");
         } catch (Throwable $e) {
-            $this->logMessage('error', "Failed to import CSV file: {$e->getMessage()}");
+            $this->logMessage('error', "Failed to process CSV file: {$e->getMessage()}");
         }
+    }
 
+    /**
+     * @throws Exception
+     */
+    private function convertCsvToSql(string $csvFilePath, string $sqlDumpPath): void
+    {
+        $handle = null;
+        $sqlDump = null;
+
+        try {
+            $handle = fopen($csvFilePath, 'r');
+            if (!$handle) {
+                throw new Exception("Unable to open CSV file: $csvFilePath");
+            }
+
+            $sqlDump = fopen($sqlDumpPath, 'w');
+            if (!$sqlDump) {
+                throw new Exception("Unable to create SQL dump file: $sqlDumpPath");
+            }
+
+            fgetcsv($handle, 1000, ",");
+
+            fwrite($sqlDump, "INSERT INTO `ip_country` (`first_ip`, `last_ip`, `country`, `region`, `subregion`, `city`, `latitude`, `longitude`, `timezone`) VALUES\n");
+
+            $isFirstRow = true;
+            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                [$firstIp, $lastIp, $country, $region, $subregion, $city, , $latitude, $longitude, $timezone] = $data;
+
+                $values = sprintf(
+                    "(%s, %s, '%s', '%s', '%s', '%s', %s, %s, '%s')",
+                    $this->convertIpToNumeric($firstIp),
+                    $this->convertIpToNumeric($lastIp),
+                    addslashes($country),
+                    addslashes($region),
+                    addslashes($subregion),
+                    addslashes($city),
+                    $latitude,
+                    $longitude,
+                    addslashes($timezone)
+                );
+
+                fwrite($sqlDump, ($isFirstRow ? "" : ",\n") . $values);
+                $isFirstRow = false;
+            }
+
+            fwrite($sqlDump, ";\n");
+        } finally {
+            if ($handle) {
+                fclose($handle);
+            }
+            if ($sqlDump) {
+                fclose($sqlDump);
+            }
+        }
+    }
+
+    private function importSqlDump(string $sqlDumpPath): void
+    {
+        $database = config('database.connections.mysql.database');
+        $host = config('database.connections.mysql.host');
+        $username = config('database.connections.mysql.username');
+        $password = config('database.connections.mysql.password');
+
+        $command = [
+            'mysql',
+            '--host=' . $host,
+            '--user=' . $username,
+            '--password=' . $password,
+            $database,
+        ];
+
+        $process = new Process($command);
+        $process->setInput(file_get_contents($sqlDumpPath)); // Передаємо вміст SQL-файлу
+        $process->setTimeout(3600);
+
+        $process->run(function ($type, $data) {
+            if ($type === Process::OUT) {
+                $this->logMessage('info', $data);
+            } else {
+                $this->logMessage('error', $data);
+            }
+        });
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
     }
 
     function convertIpToNumeric($ip): float|int|string
