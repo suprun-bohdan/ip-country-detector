@@ -87,8 +87,9 @@ class IpCountrySeeder extends Seeder
 
             fgetcsv($handle, 1000, ",");
 
-            fwrite($sqlDump, "-- Starting SQL Dump\n");
+            fwrite($sqlDump, "INSERT INTO `ip_country` (`first_ip`, `last_ip`, `country`, `region`, `subregion`, `city`, `latitude`, `longitude`, `timezone`) VALUES\n");
 
+            $isFirstRow = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                 [$firstIp, $lastIp, $country, $region, $subregion, $city, , $latitude, $longitude, $timezone] = $data;
 
@@ -105,8 +106,12 @@ class IpCountrySeeder extends Seeder
                     addslashes($timezone)
                 );
 
-                fwrite($sqlDump, "INSERT INTO `ip_country` (`first_ip`, `last_ip`, `country`, `region`, `subregion`, `city`, `latitude`, `longitude`, `timezone`) VALUES $values;\n");
+                fwrite($sqlDump, "\n-- Inserting row: $firstIp - $lastIp\n");
+                fwrite($sqlDump, ($isFirstRow ? "" : ",\n") . $values);
+                $isFirstRow = false;
             }
+
+            fwrite($sqlDump, ";\n");
         } finally {
             if ($handle) {
                 fclose($handle);
@@ -116,7 +121,6 @@ class IpCountrySeeder extends Seeder
             }
         }
     }
-
 
     private function importSqlDump(string $sqlDumpPath): void
     {
