@@ -10,6 +10,8 @@ use InvalidArgumentException;
 use IpCountryDetector\Models\IpCountry;
 use IpCountryDetector\Services\CsvFilePathService;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 class IpCountrySeeder extends Seeder
@@ -44,60 +46,49 @@ class IpCountrySeeder extends Seeder
             return;
         }
 
+
         try {
-            $dataRows = [];
-            $rowCount = 1;
+            $this->logMessage('info', "Starting CSV import using mysqlimport...");
 
-            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-                $dataRows[] = $data;
+            $database = config('database.connections.mysql.database');
+            $host = config('database.connections.mysql.host');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+            $tableName = (new IpCountry())->getTable();
+
+            $command = [
+                'mysqlimport',
+                '--local',
+                '--host=' . $host,
+                '--user=' . $username,
+                '--password=' . $password,
+                '--fields-terminated-by=,',
+                '--lines-terminated-by=\n',
+                '--ignore-lines=1',
+                '--columns=first_ip,last_ip,country,region,subregion,city,latitude,longitude,timezone',
+                $database,
+                $csvFilePath,
+            ];
+
+            $process = new Process($command);
+            $process->setTimeout(3600);
+            $process->start();
+
+            foreach ($process as $type => $data) {
+                if ($process::OUT === $type) {
+                    $this->logMessage('info', $data);
+                } else { // $process::ERR
+                    $this->logMessage('error', $data);
+                }
             }
 
-            usort($dataRows, function ($a, $b) {
-                return strcmp($a[2], $b[2]);
-            });
-
-            $totalRows = count($dataRows);
-
-            foreach ($dataRows as $data) {
-                [$firstIp, $lastIp, $country, $region, $subregion, $city, , $latitude, $longitude, $timezone] = $data;
-
-                $record = [
-                    'first_ip' => $this->convertIpToNumeric($firstIp),
-                    'last_ip' => $this->convertIpToNumeric($lastIp),
-                    'country' => $country,
-                    'region' => $region,
-                    'subregion' => $subregion,
-                    'latitude' => $latitude,
-                    'longitude' => $longitude,
-                    'city' => $city,
-                    'timezone' => $timezone,
-                ];
-
-                IpCountry::insertOrIgnore($record);
-
-                $this->logMessage('info', sprintf(
-                    "[%6.1f%% | %6d / 100%% | %6d] - Country: [%2s] - IP Range: [%15s - %-15s] - Region: [%s] - Subregion: [%s] - City: [%s] Map: [%s : %s] - Timezone: [%s]",
-                    number_format(($rowCount / $totalRows) * 100, 1),
-                    $rowCount,
-                    $totalRows,
-                    $country,
-                    str_pad($firstIp, 15, " ", STR_PAD_RIGHT),
-                    str_pad($lastIp, 15, " ", STR_PAD_RIGHT),
-                    $region,
-                    $subregion,
-                    $city,
-                    $latitude,
-                    $longitude,
-                    $timezone
-                ));
-
-                $rowCount++;
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
             }
 
-            fclose($handle);
-            $this->logMessage('info', "CSV processing completed and file closed.");
+            $this->logMessage('info', "CSV import completed successfully.");
         } catch (Throwable $e) {
-            $this->logMessage('error', "Failed to process CSV file: {$e->getMessage()}");
+            $this->logMessage('error', "Failed to import CSV file: {$e->getMessage()}");
         }
 
     }
