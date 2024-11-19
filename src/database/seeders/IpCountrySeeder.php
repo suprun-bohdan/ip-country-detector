@@ -137,14 +137,16 @@ class IpCountrySeeder extends Seeder
         ];
 
         $process = new Process($command);
-        $process->setInput(file_get_contents($sqlDumpPath)); // Передаємо вміст SQL-файлу
+        $process->setInput(file_get_contents($sqlDumpPath));
         $process->setTimeout(3600);
 
         $process->run(function ($type, $data) {
             if ($type === Process::OUT) {
-                $this->logMessage('info', $data);
+                if (stripos($data, 'Query OK') !== false || stripos($data, 'INSERT') !== false) {
+                    $this->logMessage('info', "Imported: " . trim($data));
+                }
             } else {
-                $this->logMessage('error', $data);
+                $this->logMessage('error', trim($data));
             }
         });
 
