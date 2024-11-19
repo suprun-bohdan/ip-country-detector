@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use IpCountryDetector\Models\IpCountry;
 
 return new class extends Migration
 {
@@ -11,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ip_country', function (Blueprint $table) {
+        Schema::table(IpCountry::TABLE, function (Blueprint $table) {
             $table->string('latitude')->nullable()->after('timezone');
             $table->string('longitude')->nullable()->after('latitude');
         });
@@ -22,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ip_country', function (Blueprint $table) {
+        Schema::table(IpCountry::TABLE, function (Blueprint $table) {
             $table->dropColumn(['latitude', 'longitude']);
         });
     }
