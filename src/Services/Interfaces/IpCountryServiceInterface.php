@@ -2,7 +2,10 @@
 
 namespace IpCountryDetector\Services\Interfaces;
 
-interface IpCountryServiceInterface
+interface IPCountryServiceInterface
 {
-    public function getCountry(string $ipAddress): string;
+    public function getCountryByIp(string $ipAddress): string;
+    public function getCountryByTimezone(string $timezone): ?string;
+    public function isVpnIp(string $ipAddress): bool;
+    public function validateIpAddress(string $ipAddress): bool;
 }

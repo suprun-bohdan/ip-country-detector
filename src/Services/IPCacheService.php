@@ -2,28 +2,73 @@
 
 namespace IpCountryDetector\Services;
 
-use IpCountryDetector\Services\Drivers\RedisCacheService;
-class IPCacheService
+use IpCountryDetector\Services\Interfaces\CacheServiceInterface;
+use Illuminate\Support\Facades\Log;
+
+class IPCacheService implements CacheServiceInterface
 {
-    private RedisCacheService $cacheService;
+    private const DEFAULT_TTL = 86400; // 24 hours
 
-    public function __construct(RedisCacheService $cacheService)
+    public function __construct(
+        private readonly RedisCacheService $redisService
+    ) {}
+
+    public function get(string $key): mixed
     {
-        $this->cacheService = $cacheService;
+        try {
+            return $this->redisService->get($this->formatKey($key));
+        } catch (\Exception $e) {
+            Log::warning('Cache Get Error', [
+                'key' => $key,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
     }
 
-    public function getCountryFromCache(string $ipAddress): ?string
+    public function set(string $key, mixed $value, ?int $ttl = null): void
     {
-        return $this->cacheService->get($this->getCacheKey($ipAddress));
+        try {
+            $this->redisService->set(
+                $this->formatKey($key),
+                $value,
+                $ttl ?? self::DEFAULT_TTL
+            );
+        } catch (\Exception $e) {
+            Log::warning('Cache Set Error', [
+                'key' => $key,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
-    public function setCountryToCache(string $ipAddress, string $country): void
+    public function delete(string $key): void
     {
-        $this->cacheService->set($this->getCacheKey($ipAddress), $country);
+        try {
+            $this->redisService->delete($this->formatKey($key));
+        } catch (\Exception $e) {
+            Log::warning('Cache Delete Error', [
+                'key' => $key,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
-    private function getCacheKey(string $ipAddress): string
+    public function has(string $key): bool
     {
-        return config('ipcountry.redis.prefix') . '::' . $ipAddress;
+        try {
+            return $this->redisService->has($this->formatKey($key));
+        } catch (\Exception $e) {
+            Log::warning('Cache Has Error', [
+                'key' => $key,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    private function formatKey(string $key): string
+    {
+        return config('ipcountry.redis.prefix') . '::' . $key;
     }
 }

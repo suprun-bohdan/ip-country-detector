@@ -7,13 +7,25 @@ use HttpException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use function Laravel\Prompts\error;
+use IpCountryDetector\Services\Interfaces\IPCountryServiceInterface;
+use IpCountryDetector\Services\Interfaces\CacheServiceInterface;
+use InvalidArgumentException;
+use RuntimeException;
 
-class IPCheckService
+class IPCheckService implements IPCountryServiceInterface
 {
+    private const CACHE_TTL = 86400; // 24 hours
+    private const VPN_PROVIDERS = [
+        'vpn', 'proxy', 'tor', 'hosting'
+    ];
+
     private IPCacheService $ipCacheService;
     private IpApiService $ipApiService;
 
-    public function __construct(IPCacheService $ipCacheService, IpApiService $ipApiService)
+    public function __construct(
+        private readonly CacheServiceInterface $cacheService,
+        private readonly IpApiService $ipApiService
+    )
     {
         $this->ipCacheService = $ipCacheService;
         $this->ipApiService = $ipApiService;
@@ -22,83 +34,139 @@ class IPCheckService
     /**
      * @throws Exception
      */
-    public function ipToCountry(string $ipAddress): string
+    public function getCountryByIp(string $ipAddress): string
     {
         try {
-            $cachedCountry = $this->ipCacheService->getCountryFromCache($ipAddress);
-            if ($cachedCountry) {
+            if (!$this->validateIpAddress($ipAddress)) {
+                throw new InvalidArgumentException('Invalid IP address format');
+            }
+
+            $cacheKey = $this->getCacheKey($ipAddress);
+            if ($cachedCountry = $this->cacheService->get($cacheKey)) {
                 return $cachedCountry;
             }
 
-            $ipLong = ip2long($ipAddress);
-            if ($ipLong === false) {
-                throw new \InvalidArgumentException('Invalid IP address');
-            }
-
-            $country = $this->findCountryByIp($ipLong);
-            if ($country !== "IP Address not found in the range.") {
-                $this->ipCacheService->setCountryToCache($ipAddress, $country);
+            $country = $this->findCountryInDatabase($ipAddress);
+            if ($country) {
+                $this->cacheService->set($cacheKey, $country, self::CACHE_TTL);
                 return $country;
             }
 
-            $country = $this->fetchCountryFromApi($ipAddress);
+            $country = $this->ipApiService->getCountry($ipAddress);
             if ($country !== 'Country not found') {
-                $this->ipCacheService->setCountryToCache($ipAddress, $country);
+                $this->cacheService->set($cacheKey, $country, self::CACHE_TTL);
                 return $country;
             }
 
-            throw new \RuntimeException('Country not found for this IP address');
-        } catch (\Exception $e) {
-            Log::error("IP to Country Error: {$e->getMessage()}");
+            throw new RuntimeException('Country not found for IP address: ' . $ipAddress);
+        } catch (Exception $e) {
+            Log::error('IP to Country Error', [
+                'ip' => $ipAddress,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
         }
     }
 
-    public function timeZoneToCountry(string $timeZone): ?string
+    public function getCountryByTimezone(string $timezone): ?string
     {
         try {
-            $timezone = new \DateTimeZone($timeZone);
-            $region = $timezone->getLocation();
-
-            return strtoupper($region['country_code']);
-        } catch (\Exception $e) {
-            return 'Unknown';
+            $timezoneObj = new \DateTimeZone($timezone);
+            $location = $timezoneObj->getLocation();
+            return $location['country_code'] ? strtoupper($location['country_code']) : null;
+        } catch (Exception $e) {
+            Log::warning('Timezone to Country Error', [
+                'timezone' => $timezone,
+                'error' => $e->getMessage()
+            ]);
+            return null;
         }
     }
 
-    public function ipToCountrySimple($ipAddress)
+    public function isVpnIp(string $ipAddress): bool
     {
-        if (empty($ipAddress) || ($ipLong = ip2long($ipAddress)) === false) {
-            return;
+        try {
+            $ipInfo = $this->ipApiService->getIpInfo($ipAddress);
+            return $this->checkVpnIndicators($ipInfo);
+        } catch (Exception $e) {
+            Log::warning('VPN Detection Error', [
+                'ip' => $ipAddress,
+                'error' => $e->getMessage()
+            ]);
+            return false;
         }
-
-        $country = $this->findCountryByIp($ipLong);
-
-        if ($country !== "IP Address not found in the range.") {
-            return $country;
-        }
-
-        $country = $this->fetchCountryFromApi($ipAddress);
-
-        return $country != 'Country not found' ? $country : null;
     }
 
-    private function findCountryByIp(int $ipLong): string
+    public function validateIpAddress(string $ipAddress): bool
     {
-        $result = DB::table('ip_country')
+        return filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) !== false;
+    }
+
+    private function findCountryInDatabase(string $ipAddress): ?string
+    {
+        $ipLong = $this->ipToLong($ipAddress);
+        if ($ipLong === false) {
+            return null;
+        }
+
+        return DB::table('ip_country')
             ->where('first_ip', '<=', $ipLong)
             ->where('last_ip', '>=', $ipLong)
-            ->select('country')
-            ->first();
-
-        if ($result) {
-            return $result->country;
-        }
-
-        return "IP Address not found in the range.";
+            ->value('country');
     }
 
-    private function fetchCountryFromApi(string $ipAddress): string
+    private function ipToLong(string $ipAddress): int|false
     {
-        return $this->ipApiService->getCountry($ipAddress);
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return ip2long($ipAddress);
+        }
+        
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return $this->ipv6ToLong($ipAddress);
+        }
+
+        return false;
+    }
+
+    private function ipv6ToLong(string $ipv6): int
+    {
+        $ipv6Long = inet_pton($ipv6);
+        if ($ipv6Long === false) {
+            return false;
+        }
+        
+        $bin = '';
+        for ($i = 0; $i < 16; $i++) {
+            $bin .= sprintf('%08b', ord($ipv6Long[$i]));
+        }
+        
+        return bindec($bin);
+    }
+
+    private function getCacheKey(string $ipAddress): string
+    {
+        return config('ipcountry.redis.prefix') . '::' . $ipAddress;
+    }
+
+    private function checkVpnIndicators(array $ipInfo): bool
+    {
+        $indicators = array_merge(
+            array_column(self::VPN_PROVIDERS, 'strtolower'),
+            ['hosting', 'datacenter']
+        );
+
+        $hostname = strtolower($ipInfo['hostname'] ?? '');
+        $org = strtolower($ipInfo['org'] ?? '');
+        $isp = strtolower($ipInfo['isp'] ?? '');
+
+        foreach ($indicators as $indicator) {
+            if (str_contains($hostname, $indicator) ||
+                str_contains($org, $indicator) ||
+                str_contains($isp, $indicator)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
